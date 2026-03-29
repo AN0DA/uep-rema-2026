@@ -1,0 +1,13 @@
+# Python / Jupyter
+.venv/
+venv/
+.ipynb_checkpoints/
+*.nbconvert.ipynb
+
+# Node / presentation
+presentation/node_modules/
+presentation/dist/
+
+# OS / editor
+.DS_Store
+Thumbs.db

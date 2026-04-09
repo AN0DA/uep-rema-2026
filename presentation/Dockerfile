@@ -1,5 +1,5 @@
 # Build static deck, then serve with nginx (production-style image).
-FROM node:20-bookworm AS builder
+FROM node:22-bookworm AS builder
 WORKDIR /app
 
 COPY package.json package-lock.json ./

@@ -3,26 +3,761 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>UEP REMA — Presentation</title>
+    <title>Data Cleaning &amp; Preparation - UEP REMA</title>
   </head>
   <body>
     <div class="reveal">
       <div class="slides">
-        <section>
-          <h1>Welcome</h1>
-          <p>Course presentation (reveal.js + Vite).</p>
+
+        <section class="deck-dark">
+          <div class="deck-section-num">00</div>
+          <span class="deck-label">Poznań University of Economics and Business · Real Estate Market Analysis</span>
+          <br/><br/><br/><br/><br/>
+          <h1>Data Cleaning &amp; Preparation</h1>
+          <p style="color: var(--deck-dark-muted); margin-top: 0.3em">
+            Understanding the format behind GML spatial data files <br />and loading them into Python
+          </p>
+          <p class="deck-footer">Data Cleaning &amp; Preparation</p>
           <aside class="notes">
-            <p>
-              Speaker view: press <kbd>S</kbd> or use the notes control in the
-              UI. Add one <code>&lt;aside class="notes"&gt;</code> block per
-              slide for script text.
-            </p>
           </aside>
         </section>
+
+        <!-- ═══ Chapter 1: Introduction to XML ═══ -->
         <section>
-          <h2>Second slide</h2>
-          <p>Edit <code>index.html</code> or add Markdown via plugins.</p>
+          <section class="deck-dark">
+            <div class="deck-section-num">01</div>
+            <span class="deck-label">Data Cleaning &amp; Preparation · PUEB REMA</span>
+            <h1>Introduction to XML</h1>
+            <p class="deck-section-blurb">
+              Vocabulary, then a short RCN GML fragment. Syntax and namespaces follow in later sections.
+            </p>
+            <p class="deck-footer">Data Cleaning &amp; Preparation</p>
+            <aside class="notes">
+              <p>Agenda for this section:</p>
+              <ul>
+                <li>What XML is and why spatial data uses it (not CSV/JSON)</li>
+                <li>XML syntax building blocks — elements, attributes, tree structure</li>
+                <li>On the RCN excerpt: declaration, comments, empty elements — pointed out on-slide</li>
+                <li>Namespaces — what the gml:, rcn:, xsi: prefixes mean</li>
+                <li>RCN in the file — six business object types and how they link</li>
+              </ul>
+              <p>Goal: confident <em>reading</em> of GML files, not writing them. You'll work with these files all semester.</p>
+              <p>Pitch: stress that GML is XML — same parser concepts — without sounding like advertising.</p>
+            </aside>
+          </section>
+
+          <section>
+            <span class="deck-label">Introduction to XML</span>
+            <h2>What is XML?</h2>
+            <p class="deck-subtitle">Hierarchical text · elements and attributes</p>
+            <div class="deck-block">
+              <p>
+                <strong>XML</strong> is plain-text markup: nested elements, optional attributes, one document tree.
+                You define tags or adopt a standard (e.g. <strong>GML</strong>); a parser builds the tree.
+              </p>
+            </div>
+            <h3>Why it is used for exchange</h3>
+            <ul class="deck-list-plain deck-list-compact" style="margin-top: 0.25em">
+              <li><strong>Self-describing</strong> — tags name the data; you can read structure without a separate data dictionary.</li>
+              <li><strong>Validation</strong> — schemas (e.g. XSD) define allowed elements and types before data enters a pipeline.</li>
+              <li><strong>Rich fields</strong> — attributes carry units, IDs, language, or “nil” flags next to values.</li>
+              <li><strong>Interoperability</strong> — long track record in government, GIS (OGC/ISO), and regulated sectors.</li>
+            </ul>
+            <p class="deck-footer">Data Cleaning &amp; Preparation</p>
+            <aside class="notes">
+              <p><strong>Self-describing vs CSV:</strong> column order alone does not document meaning; XML element names do. Still, semantics ultimately come from the standard (e.g. GML application schema), not from the angle brackets alone.</p>
+              <p><strong>History:</strong> XML 1.0 — W3C Recommendation (1998), simplified from SGML for the web; Unicode; meant for documents and machine interchange. XSD (and others) describe valid structure.</p>
+              <p>XML is a generic interchange format, not “web pages” — unlike HTML’s fixed tag set. GML uses XML for schema validation, tooling, and ISO/OGC alignment.</p>
+              <p>Many students know JSON: both are tree-shaped text; XML adds attributes on elements and has a long trail in government and GIS procurement.</p>
+            </aside>
+          </section>
+
+          <section>
+            <span class="deck-label">Introduction to XML</span>
+            <h2>Where you see XML</h2>
+            <p class="deck-subtitle">Beyond this course</p>
+            <ul class="deck-list-plain deck-list-compact" style="margin-top: 0.35em">
+              <li>Geodata and graphics: GML, KML, SVG</li>
+              <li>Office and tools: OOXML (<code>.docx</code> / <code>.xlsx</code>), RSS, Android layouts, build files</li>
+              <li>Enterprise: SOAP, B2B payloads where schemas matter</li>
+            </ul>
+            <p class="deck-footer">Data Cleaning &amp; Preparation</p>
+            <aside class="notes">
+              <p><strong>OOXML:</strong> <code>.docx</code>/<code>.xlsx</code> are ZIP archives of XML parts, not a single big file.</p>
+              <p>Other examples: Maven <code>pom.xml</code>, many IDE and CI configs, Atom/RSS feeds.</p>
+              <p>Use this slide only to show XML is ubiquitous — the course focuses on GML/RCN.</p>
+            </aside>
+          </section>
+
+          <section>
+            <span class="deck-label">Introduction to XML</span>
+            <h2>RCN export (excerpt)</h2>
+            <div class="deck-code-panel deck-grow">
+              <pre class="deck-pre r-stretch"><code
+                class="language-xml"
+                data-trim
+                data-line-numbers="1|2-6|7-15|17-24"
+              ><script type="text/template">
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!--
+  Utworzono w:    WEGA
+  Czas eksportu:  2026-02-24T13:20:19
+  Dane:           RCN
+-->
+<gml:FeatureCollection gml:id="LST_RCN.GML_309646_2026_02_24"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xmlns:gco="http://www.isotc211.org/2005/gco"
+xmlns:gts="http://www.isotc211.org/2005/gts"
+xmlns:gml="http://www.opengis.net/gml/3.2"
+xmlns:gmd="http://www.isotc211.org/2005/gmd"
+xmlns:xlink="http://www.w3.org/1999/xlink"
+xmlns:rcn="urn:gugik:specyfikacje:gmlas:rejestrcennieruchomosci:1.0"
+xsi:schemaLocation="urn:gugik:specyfikacje:gmlas:rejestrcennieruchomosci:1.0 RCN_14.xsd">
+<gml:boundedBy xsi:nil="true" />
+<gml:featureMember>
+<rcn:RCN_Dokument gml:id="PL.PZGiK.7251.RCN_00000067-0000-0000-0000-000019852259_2019-02-25T10-25-58">
+ <gml:boundedBy xsi:nil="true" nilReason="missing"/>
+ <rcn:oznaczenieDokumentu>23449</rcn:oznaczenieDokumentu>
+ <rcn:dataSporzadzeniaDokumentu>2009-12-22</rcn:dataSporzadzeniaDokumentu>
+ <rcn:tworcaDokumentu>Kancelaria Notarialna</rcn:tworcaDokumentu>
+</rcn:RCN_Dokument>
+</gml:featureMember>
+</script></code></pre>
+            </div>
+            <p class="deck-caption">
+              Declaration (line 1) · comments (2–6, ignored by parsers) · <code>&lt;gml:boundedBy … /&gt;</code> = empty element
+            </p>
+            <p class="deck-footer">Data Cleaning &amp; Preparation</p>
+            <aside class="notes">
+              <p>Step through the four highlighted sections:</p>
+              <ul>
+                <li><strong>Line 1</strong> — XML declaration (<code>&lt;?xml … ?&gt;</code>): version 1.0, UTF-8. Must be first in the file. <code>standalone="yes"</code> = no external DTD.</li>
+                <li><strong>Lines 2–6</strong> — comment block (<code>&lt;!-- … --&gt;</code>). Export metadata from WEGA; parsers ignore comments entirely.</li>
+                <li><strong>Lines 7–15</strong> — root element FeatureCollection. Seven <code>xmlns:</code> lines declare namespace prefixes — normal in GML.</li>
+                <li><strong>Lines 17–24</strong> — first <code>featureMember</code>: <code>RCN_Dokument</code> (notarial deed), with <code>xsi:nil</code> geometry, deed number, date, notary.</li>
+              </ul>
+              <p><strong>Self-closing:</strong> <code>&lt;gml:boundedBy xsi:nil="true" /&gt;</code> — no text content; <code>/&gt;</code> closes the tag. Same idea as <code>&lt;boundedBy&gt;&lt;/boundedBy&gt;</code> when empty.</p>
+              <p>Ask: "Has anyone opened a file like this before?" — The goal today is that by the end, this looks readable.</p>
+              <p>The course file <code>Baza_danych_RCN_Poznan_2021-2025.gml</code> is a full multi-year Poznań export (millions of lines). Use streaming (<code>iterparse</code>) or <code>geopandas.read_file()</code>, not a naive full-tree load.</p>
+            </aside>
+          </section>
         </section>
+
+        <!-- ═══ Chapter 2: Format overview ═══ -->
+        <section>
+          <section class="deck-dark">
+            <div class="deck-section-num">02</div>
+            <span class="deck-label">Data Cleaning &amp; Preparation · PUEB REMA</span>
+            <h1>Format overview</h1>
+            <p class="deck-section-blurb">
+              One example record (<code>LOK_1</code>) as CSV, JSON, and XML. Later material assumes XML because GML is XML.
+            </p>
+            <p class="deck-footer">Data Cleaning &amp; Preparation</p>
+            <aside class="notes">
+              <p>Same fictional flat in three encodings: contrast flat table vs nested object vs tagged tree.</p>
+              <p>Why XML for cadastre/GML: schemas, attributes, namespaces — covered in depth later; this section is orientation only.</p>
+            </aside>
+          </section>
+
+          <section>
+            <span class="deck-label">Format overview · CSV</span>
+            <h2>CSV</h2>
+            <p class="deck-subtitle">Comma-separated values · flat tables</p>
+            <div class="deck-block">
+              <p>
+                <strong>Comma-Separated Values</strong> — one row per record, columns for fields. Typical for spreadsheets and SQL exports.
+              </p>
+            </div>
+            <div class="deck-code-panel deck-grow">
+              <pre class="deck-pre r-stretch"><code class="language-plaintext" data-trim>
+id,pow,cena
+LOK_1,60.25,750000
+</code></pre>
+            </div>
+            <ul class="deck-list-plain deck-list-compact" style="margin-top: 0.5em">
+              <li>Works well for quick analysis in pandas or Excel.</li>
+              <li>No native hierarchy: nested data usually means extra columns, encoding tricks, or another file and a join.</li>
+              <li>Units and rich geometry have no standard column — often WKT in text or separate layers.</li>
+            </ul>
+            <p class="deck-footer">Data Cleaning &amp; Preparation</p>
+            <aside class="notes">
+              <p>CSV: think spreadsheet. Works well for simple tables. Can't represent nested structures (e.g. an address inside a property record) or add metadata like units of measure to individual fields without extra columns.</p>
+            </aside>
+          </section>
+
+          <section>
+            <span class="deck-label">Format overview · JSON</span>
+            <h2>JSON</h2>
+            <p class="deck-subtitle">JavaScript Object Notation · nested objects</p>
+            <div class="deck-block">
+              <p>
+                <strong>JSON</strong> — objects <code>{ }</code>, arrays <code>[ ]</code>, key–value pairs. Common in REST APIs and document stores.
+              </p>
+            </div>
+            <div class="deck-code-panel deck-grow">
+              <pre class="deck-pre r-stretch"><code class="language-json" data-trim>
+{
+  "id": "LOK_1",
+  "pow": 60.25,
+  "uom": "m2",
+  "cena": 750000
+}
+</code></pre>
+            </div>
+            <ul class="deck-list-plain deck-list-compact" style="margin-top: 0.5em">
+              <li>Nesting maps cleanly to Python dicts and JavaScript objects.</li>
+              <li>Units or typed values often need extra keys or wrapper objects.</li>
+              <li>GeoJSON is widely used; cadastre-grade pipelines often still use GML/XML.</li>
+            </ul>
+            <p class="deck-footer">Data Cleaning &amp; Preparation</p>
+            <aside class="notes">
+              <p>JSON: think Python dict. Nested structures work. Units are awkward — you need a separate <code>uom</code> field or a wrapper. GeoJSON exists but is not as rich as GML for official cadastre / INSPIRE-style pipelines.</p>
+            </aside>
+          </section>
+
+          <section>
+            <span class="deck-label">Format overview · XML</span>
+            <h2>XML</h2>
+            <p class="deck-subtitle">eXtensible Markup Language · tagged trees</p>
+            <div class="deck-block">
+              <p>
+                <strong>XML</strong> — elements in angle brackets, attributes, a strict document tree. Vocabularies such as GML are defined with schemas (e.g. XSD).
+              </p>
+            </div>
+            <div class="deck-code-panel deck-grow">
+              <pre class="deck-pre r-stretch"><code class="language-xml" data-trim><script type="text/template">
+<lokal>
+  <pow uom="m2">60.25</pow>
+  <cena>750000</cena>
+  <adres>
+    <miasto>Poznań</miasto>
+  </adres>
+</lokal>
+</script></code></pre>
+            </div>
+            <ul class="deck-list-plain deck-list-compact" style="margin-top: 0.5em">
+              <li>Attributes such as <code>uom="m2"</code> can sit on the same element as the value.</li>
+              <li>Child elements express containment without a second table.</li>
+              <li>GML, KML, SVG, CityGML, and many government feeds use XML; XSD can validate structure before ingest.</li>
+            </ul>
+            <p class="deck-footer">Data Cleaning &amp; Preparation</p>
+            <aside class="notes">
+              <p>XML = eXtensible Markup Language (W3C, 1998). "Extensible" means you invent tag names — unlike fixed HTML tags.</p>
+              <p>Same property as CSV/JSON: <strong>attributes</strong> — <code>uom="m2"</code> is natural; in JSON you'd often use <code>{"value": 60.25, "uom": "m2"}</code>. <strong>Nesting</strong> — address as child element; CSV would need a join. <strong>Geometry</strong> — in GML, polygons carry CRS and structure; CSV often uses WKT strings.</p>
+              <p>Why cadastre / OGC stacks use XML: nested geometry, XSD validation, ISO/OGC history since the 1990s, procurement expectations.</p>
+            </aside>
+          </section>
+        </section>
+
+        <!-- ═══ Chapter 3: Building blocks ═══ -->
+        <section>
+          <section class="deck-dark">
+            <div class="deck-section-num">03</div>
+            <span class="deck-label">Data Cleaning &amp; Preparation · PUEB REMA</span>
+            <h1>Building blocks</h1>
+            <p class="deck-section-blurb">
+              Elements and attributes — toy examples first, then the same ideas in RCN GML.
+            </p>
+            <p class="deck-footer">Data Cleaning &amp; Preparation</p>
+            <aside class="notes">
+              <p>Roadmap: (1) element = opening tag + content + closing tag; (2) three real RCN fields; (3) attributes — bare value vs <code>uom</code> + syntax on one slide; (4) recurring attribute names in exports.</p>
+              <p>Namespaces (<code>rcn:</code>, <code>gml:</code>) get a full treatment in the next main section; here we focus on shape.</p>
+            </aside>
+          </section>
+
+          <!-- 3a: Elements — generic -->
+          <section data-auto-animate data-auto-animate-id="elements">
+            <span class="deck-label">Building blocks</span>
+            <h2>Elements</h2>
+            <p class="deck-subtitle">Opening tag · content · closing tag</p>
+            <div class="deck-code-panel">
+              <pre class="deck-pre deck-pre-lg" data-id="element-demo"><code class="language-xml" data-trim>
+&lt;city&gt;Poznań&lt;/city&gt;
+</code></pre>
+            </div>
+            <div class="fragment" style="margin-top: 0.45em">
+              <ul class="deck-list-plain deck-list-compact">
+                <li><span class="deck-tree-tag">&lt;city&gt;</span> — opening tag</li>
+                <li><strong>Poznań</strong> — text content</li>
+                <li><span class="deck-tree-tag">&lt;/city&gt;</span> — closing tag</li>
+              </ul>
+            </div>
+            <p class="deck-footer">Data Cleaning &amp; Preparation</p>
+            <aside class="notes">
+              <p>An element = opening tag + content + closing tag. Three parts, every time.</p>
+              <ul>
+                <li>Opening tag: the element name in angle brackets.</li>
+                <li>Text content: the value — or child elements instead of text, or empty.</li>
+                <li>Closing tag: must match the opening tag; <code>/</code> marks closing.</li>
+              </ul>
+              <p>Attributes, nesting, and namespaces build on this pattern. Next slide: the same structure in RCN data.</p>
+            </aside>
+          </section>
+
+          <!-- 3b: Elements — in RCN data (auto-animates from 3a) -->
+          <section data-auto-animate data-auto-animate-id="elements">
+            <span class="deck-label">Building blocks</span>
+            <h2>Elements in RCN data</h2>
+            <p class="deck-subtitle">Same structure — longer names, namespace prefix</p>
+            <div class="deck-code-panel">
+              <pre class="deck-pre" data-id="element-demo"><code
+                class="language-xml"
+                data-trim
+                data-line-numbers="1|2|3"
+              ><script type="text/template">
+<rcn:oznaczenieDokumentu>13129 (30322)</rcn:oznaczenieDokumentu>
+<rcn:dataSporzadzeniaDokumentu>2025-12-17</rcn:dataSporzadzeniaDokumentu>
+<rcn:tworcaDokumentu>Glanowski Piotr Mikołajczak Katarzyna Kancelaria Notarialna</rcn:tworcaDokumentu>
+</script></code></pre>
+            </div>
+            <div class="deck-block" style="margin-top: 0.45em">
+              <p>
+                <code>rcn:</code> is a namespace prefix — the element is still <strong>opening tag · text · closing tag</strong>.
+                Full meaning of prefixes in the namespaces section.
+              </p>
+            </div>
+            <p class="deck-footer">Data Cleaning &amp; Preparation</p>
+            <aside class="notes">
+              <p>Same structure as <code>&lt;city&gt;…&lt;/city&gt;</code> — longer tag names and a prefix.</p>
+              <ul>
+                <li><strong>oznaczenieDokumentu</strong> — deed identifier (e.g. 13129 in notary 30322’s registry).</li>
+                <li><strong>dataSporzadzeniaDokumentu</strong> — document date.</li>
+                <li><strong>tworcaDokumentu</strong> — notary / office text.</li>
+              </ul>
+              <p>Treat <code>rcn:</code> as shorthand; focus on the name after the colon until namespaces are introduced.</p>
+            </aside>
+          </section>
+
+          <!-- 3c: Attributes — bare value → uom (one slide, fragments) -->
+          <section>
+            <span class="deck-label">Building blocks</span>
+            <h2>Attributes</h2>
+            <p class="deck-subtitle">Bare value → unit metadata on the opening tag</p>
+            <div class="deck-code-panel">
+              <pre class="deck-pre deck-pre-lg"><code class="language-xml" data-trim>
+&lt;pow&gt;60.25&lt;/pow&gt;
+</code></pre>
+            </div>
+              <div class="deck-block" style="margin: 0">
+                <p style="margin: 0">
+                  <code>60.25</code> has no <strong>unit</strong> (m², ha, km²…) — for analysis, units must travel with the number, not only in a separate column or comment.
+                </p>
+              </div>
+            <div class="fragment" style="margin-top: 0.45em">
+              <p class="deck-stack-connector">Put metadata on the same element</p>
+              <div class="deck-code-panel">
+                <pre class="deck-pre deck-pre-lg"><code class="language-xml" data-trim>
+&lt;pow uom="m2"&gt;60.25&lt;/pow&gt;
+</code></pre>
+              </div>
+              <p style="margin: 0.45em 0 0; font-size: 0.88em; line-height: 1.5">
+                Value unchanged; <code>uom="m2"</code> is unit of measure (real pattern from <code>RCN_Lokal</code>).
+              </p>
+              <p class="deck-caption" style="margin: 0.35em 0 0">
+                Syntax: <code>name="value"</code> inside <code>&lt;…&gt;</code>; quotes; several attributes = space-separated (order does not matter).
+              </p>
+            </div>
+            <p class="deck-footer">Data Cleaning &amp; Preparation</p>
+            <aside class="notes">
+              <p><code>pow</code> suggests area; mixing ha and m² without tracking units breaks joins and aggregates.</p>
+              <p>CSV workaround: extra unit column or <code>pow_m2</code> in the header — XML keeps value and unit on one node.</p>
+              <p>Attribute rules: only in the opening tag; <code>name="value"</code>; double quotes standard (single quotes valid).</p>
+              <p><code>uom</code> everywhere in GML — <code>ha</code> for parcels, <code>m2</code> for units, <code>m</code> for lengths. Always extract <code>uom</code> when you extract numbers.</p>
+            </aside>
+          </section>
+
+          <!-- 3d: Common attributes — patterns in the file -->
+          <section>
+            <span class="deck-label">Building blocks</span>
+            <h2>Common attributes</h2>
+            <p class="deck-subtitle">Fragments of real geometry and property fields</p>
+            <div class="deck-code-panel">
+              <pre class="deck-pre "><code
+                class="language-xml"
+                data-trim
+                data-line-numbers="1|2|3|4"
+              ><script type="text/template">
+<gml:Polygon srsName="urn:ogc:def:crs:EPSG:2177" gml:id="gPN_000000001">
+<gml:posList count="7" srsDimension="2">5807962.88 6423172.14 …</gml:posList>
+<rcn:polePowierzchniEwidencyjnej uom="ha">0.0792</rcn:polePowierzchniEwidencyjnej>
+<gml:boundedBy xsi:nil="true" nilReason="missing"/>
+</script></code></pre>
+            </div>
+              <ul class="deck-list-plain deck-list-compact">
+                <li><code>srsName</code>, <code>gml:id</code> — CRS + stable id</li>
+                <li><code>count</code>, <code>srsDimension</code> — how many coordinates, 2D vs 3D</li>
+                <li><code>uom</code> — units (check before comparing numbers)</li>
+                <li><code>xsi:nil</code> — “no value here” (e.g. missing geometry)</li>
+              </ul>
+
+            <p class="deck-footer">Data Cleaning &amp; Preparation</p>
+            <aside class="notes">
+              <p><strong>srsName / gml:id</strong> — EPSG:2177 = Polish grid (Układ 1992); <code>gml:id</code> is unique in the file for references.</p>
+              <p><strong>count / srsDimension</strong> — how many ordinates in <code>posList</code>; <code>srsDimension=2</code> → (x,y) pairs.</p>
+              <p><strong>uom</strong> — ha vs m²; convert before aggregating.</p>
+              <p><strong>xsi:nil</strong> — expected for records without geometry; parsers map to null/NaN, not necessarily an error.</p>
+            </aside>
+          </section>
+        </section>
+
+        <!-- ═══ Chapter 4: Document structure (tree) ═══ -->
+        <section>
+          <section class="deck-dark">
+            <div class="deck-section-num">04</div>
+            <span class="deck-label">Data Cleaning &amp; Preparation · PUEB REMA</span>
+            <h1>Document structure</h1>
+            <p class="deck-section-blurb">
+              One root element, parent–child nesting, and paths to data — then a real <code>RCN_Lokal</code> fragment.
+            </p>
+            <p class="deck-footer">Data Cleaning &amp; Preparation</p>
+            <aside class="notes">
+              <p>Sequence: (1) what “tree” means in XML; (2) schematic of one feature; (3) trimmed file excerpt with highlights.</p>
+              <p>Link to practice: navigation = XPath / ElementTree <code>find</code> / <code>iter</code> — you follow tag paths, not fixed column indices.</p>
+            </aside>
+          </section>
+
+          <section>
+            <span class="deck-label">Document structure</span>
+            <h2>XML is a tree</h2>
+            <p class="deck-subtitle">Not a single table — a hierarchy of elements</p>
+            <div class="deck-block">
+              <p>
+                Each element has <strong>at most one parent</strong> (except the <strong>root</strong>, which has none). Children are fully
+                <em>inside</em> the parent — that nesting is how “this address belongs to this flat” is represented.
+              </p>
+            </div>
+            <ul class="deck-list-plain deck-list-compact" style="margin-top: 0.45em">
+              <li><strong>Root</strong> — one outer element wraps the whole document (GML: <code>gml:FeatureCollection</code>).</li>
+              <li><strong>Records</strong> — wrappers like <code>gml:featureMember</code> and typed features such as <code>rcn:RCN_Lokal</code>.</li>
+              <li><strong>Paths</strong> — nested fields are reached by walking the tree (e.g. … → <code>RCN_Adres</code> → <code>miejscowosc</code>).</li>
+              <li><strong>Well-formed</strong> — matching tags, proper nesting, one root; invalid XML fails in the parser (official RCN exports are well-formed).</li>
+            </ul>
+            <p class="deck-footer">Data Cleaning &amp; Preparation</p>
+            <aside class="notes">
+              <p>Contrast with CSV: one row per flat cannot put a whole address hierarchy in one cell without encoding tricks; XML uses sub-elements.</p>
+              <p>Formal tree terms: nodes = elements, leaves often = text or empty elements; document order of siblings can matter for streaming parsers.</p>
+              <p><strong>Well-formedness (moved from former “syntax” block):</strong> close every tag (or use <code>&lt;tag /&gt;</code>); tags are case-sensitive; no overlapping tags; exactly one document root. Unlike HTML, parsers do not “fix” broken markup. GUGiK GML is reliably well-formed; hand-edited or string-built XML may not be.</p>
+            </aside>
+          </section>
+
+          <section>
+            <span class="deck-label">Document structure</span>
+            <h2>One feature (schematic)</h2>
+            <p class="deck-subtitle">Scalars vs nested block (address)</p>
+            <div class="deck-code-panel">
+              <pre class="deck-pre"><code class="language-plaintext" data-trim>
+FeatureCollection
+ └─ featureMember
+     └─ RCN_Lokal
+          ├─ idLokalu · rooms · floor · area · price …
+          └─ adresBudynkuZLokalem
+               └─ RCN_Adres → miejscowosc · ulica · numer …
+</code></pre>
+            </div>
+            <p class="deck-caption">
+              Flat fields sit directly under <code>RCN_Lokal</code>; the address is a <strong>subtree</strong> (container → <code>RCN_Adres</code> → fields).
+            </p>
+            <p class="deck-footer">Data Cleaning &amp; Preparation</p>
+            <aside class="notes">
+              <p><strong>FeatureCollection</strong> — file root. <strong>featureMember</strong> — one wrapper per feature in the exchange model.</p>
+              <p><strong>RCN_Lokal</strong> — apartment / unit record (lokal). Scalar children: ids, counts, area (with <code>uom</code>), price, etc.</p>
+              <p><strong>adresBudynkuZLokalem</strong> — not a string; it holds an <code>RCN_Adres</code> child with city, street, number.</p>
+              <p>Retrieving a street means following a path, not “column 17”. XPath / <code>find()</code> express that path.</p>
+            </aside>
+          </section>
+
+          <section>
+            <span class="deck-label">Document structure</span>
+            <h2><code>RCN_Lokal</code> (trimmed)</h2>
+            <p class="deck-subtitle">Real excerpt — indentation follows depth</p>
+          
+            <div class="deck-code-panel">
+              <pre class="deck-pre"><code
+                class="language-xml"
+                data-trim
+                data-fragment-index="1"
+                data-line-numbers="1-14|1,14|2-6|7-13"
+              ><script type="text/template">
+          <rcn:RCN_Lokal gml:id="PL.PZGiK.7251.RCN_00000134-…_2026-01-29">
+            <rcn:idLokalu>306401_1.0051.AR_33.3.5_BUD.130_LOK</rcn:idLokalu>
+            <rcn:liczbaIzb>2</rcn:liczbaIzb>
+            <rcn:nrKondygnacji>6</rcn:nrKondygnacji>
+            <rcn:powUzytkowaLokalu uom="m2">60.25</rcn:powUzytkowaLokalu>
+            <rcn:cenaLokaluBrutto>750000.0</rcn:cenaLokaluBrutto>
+            <rcn:adresBudynkuZLokalem>
+              <rcn:RCN_Adres>
+                <rcn:miejscowosc>Poznań</rcn:miejscowosc>
+                <rcn:ulica>ul. Kazimierza Wielkiego</rcn:ulica>
+                <rcn:numerPorzadkowy>5C</rcn:numerPorzadkowy>
+              </rcn:RCN_Adres>
+            </rcn:adresBudynkuZLokalem>
+          </rcn:RCN_Lokal>
+          </script></code></pre>
+            </div>
+          
+            <div style="margin-top: 0.4em">
+              <ul class="deck-list-plain deck-list-compact">
+                <li class="fragment" data-fragment-index="1">
+                  <strong>1 / 14</strong> — feature open/close + <code>gml:id</code> (stable id in the file).
+                </li>
+                <li class="fragment" data-fragment-index="2">
+                  <strong>2–6</strong> — scalar fields; area carries <code>uom="m2"</code>.
+                </li>
+                <li class="fragment" data-fragment-index="3">
+                  <strong>7–13</strong> — nested address block (<code>adresBudynkuZLokalem</code> → <code>RCN_Adres</code> → fields).
+                </li>
+              </ul>
+            </div>
+          
+            <p class="deck-footer">Data Cleaning &amp; Preparation</p>
+          
+            <aside class="notes">
+              <p>Source: real Poznań RCN export (representative snippet). <code>gml:id</code> encodes registry context and a unique key — treat as opaque unless you parse the convention.</p>
+              <p>Whitespace between tags is only for humans; parsers build the same tree without relying on indentation.</p>
+              <p>Example record: 2 rooms, 6th floor, ul. Kazimierza Wielkiego 5C, Poznań; price and area as shown.</p>
+            </aside>
+          </section>
+        </section>
+
+        <!-- ═══ Chapter 5: Namespaces ═══ -->
+        <section>
+          <section class="deck-dark">
+            <div class="deck-section-num">05</div>
+            <span class="deck-label">Data Cleaning &amp; Preparation · PUEB REMA</span>
+            <h1>Namespaces</h1>
+            <p class="deck-section-blurb">
+              Prefixes (<code>gml:</code>, <code>rcn:</code>, …) point at standard vocabularies; you bind them once, then query with full names in code.
+            </p>
+            <p class="deck-footer">Data Cleaning &amp; Preparation</p>
+            <aside class="notes">
+              <p>Sequence: (1) why collisions happen; (2) <code>xmlns:</code> on the root; (3) URIs in ElementTree / Clark notation.</p>
+            </aside>
+          </section>
+
+          <section>
+            <span class="deck-label">Namespaces</span>
+            <h2>Why prefixes?</h2>
+            <p class="deck-subtitle">Many standards · same local names · different meaning</p>
+            <div class="deck-block">
+              <p>
+                GML, RCN, XSD, and others all define tags like <code>id</code> or <code>name</code>. A <strong>namespace</strong> ties each
+                prefix to one vocabulary so <code>gml:id</code> (geometry id) and <code>rcn:id</code> (cadastre id) never clash.
+                <code>prefix:localName</code> is a QName — the colon is only punctuation, not special syntax.
+              </p>
+            </div>
+            <ul class="deck-list-plain deck-list-compact" style="margin-top: 0.45em">
+              <li><strong>gml:</strong> — OGC geometry / exchange shell (<code>FeatureCollection</code>, <code>Polygon</code>, …).</li>
+              <li><strong>rcn:</strong> — Polish RCN types (<code>RCN_Lokal</code>, <code>RCN_Transakcja</code>, …).</li>
+              <li><strong>xsi:</strong> — schema instance: <code>xsi:nil</code>, <code>schemaLocation</code>, …</li>
+            </ul>
+            <p class="deck-footer">Data Cleaning &amp; Preparation</p>
+            <aside class="notes">
+              <p>Analogy: <code>gml.id</code> vs <code>rcn.id</code> in Python — same local name, different module.</p>
+              <p>Official exports declare every prefix they use on the root element.</p>
+            </aside>
+          </section>
+
+          <section>
+            <span class="deck-label">Namespaces</span>
+            <h2><code>xmlns:</code> on the root</h2>
+            <p class="deck-subtitle">Each line binds a prefix to a URI — a stable vocabulary id</p>
+            <div class="deck-split">
+              <div class="deck-code-panel">
+                <pre class="deck-pre "><code
+                  class="language-xml"
+                  data-trim
+                  data-line-numbers="2-8"
+                ><script type="text/template">
+<gml:FeatureCollection gml:id="LST_RCN.GML_309646_2026_02_24"
+  xmlns:gml="http://www.opengis.net/gml/3.2"
+  xmlns:rcn="urn:gugik:specyfikacje:gmlas:rejestrcennieruchomosci:1.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:xlink="http://www.w3.org/1999/xlink"
+  xmlns:gmd="http://www.isotc211.org/2005/gmd"
+  xmlns:gco="http://www.isotc211.org/2005/gco"
+  xmlns:gts="http://www.isotc211.org/2005/gts">
+</script></code></pre>
+              </div>
+              <ul class="deck-list-plain deck-list-compact">
+                <li><code>gml</code> / <code>rcn</code> / <code>xsi</code> — main geometry, RCN features, schema hints (see previous slide).</li>
+                <li><code>xlink:</code> — <code>xlink:href</code> points at another feature&apos;s <code>gml:id</code>.</li>
+                <li><code>gmd</code> / <code>gco</code> / <code>gts</code> — ISO metadata / time; often declared; fewer direct paths in exercises.</li>
+              </ul>
+            </div>
+            <p class="deck-caption">
+              Declared once on <code>FeatureCollection</code> — like imports for the whole document.
+            </p>
+            <p class="deck-footer">Data Cleaning &amp; Preparation</p>
+            <aside class="notes">
+              <p><strong>gml:</strong> GML 3.2. <strong>rcn:</strong> GUGiK RCN schema. <strong>xsi:</strong> nulls and <code>schemaLocation</code>.</p>
+              <p>Copy exact strings from the file into your <code>ns</code> map — typos break lookups.</p>
+            </aside>
+          </section>
+
+          <section>
+            <span class="deck-label">Namespaces</span>
+            <h2>URIs and ElementTree</h2>
+            <p class="deck-subtitle">Identifiers — not necessarily pages to open in a browser</p>
+            <div class="deck-block">
+              <p>
+                <code>http://…</code> and <code>urn:…</code> strings are <strong>globally unique vocabulary names</strong>. Parsing does not require downloading them.
+              </p>
+            </div>
+            <div class="deck-code-panel" style="margin-top: 0.45em">
+              <pre class="deck-pre "><code class="language-python" data-trim>
+ns = {
+    'gml':   'http://www.opengis.net/gml/3.2',
+    'rcn':   'urn:gugik:specyfikacje:gmlas:rejestrcennieruchomosci:1.0',
+    'xlink': 'http://www.w3.org/1999/xlink',
+}
+tree.findall('gml:featureMember/rcn:RCN_Lokal', ns)
+</code></pre>
+            </div>
+            <p class="deck-caption">
+              Elements may appear as <code>{http://www.opengis.net/gml/3.2}Polygon</code> — Clark notation — in errors and <code>repr</code>.
+            </p>
+            <p class="deck-footer">Data Cleaning &amp; Preparation</p>
+            <aside class="notes">
+              <p>Do not rely on the HTTP URL returning documentation; uniqueness is what matters.</p>
+              <p>ElementTree resolves prefixed paths using the <code>ns</code> mapping for <code>find</code> / <code>findall</code>.</p>
+              <p>Mismatched URIs → empty results or confusing <code>{uri}tag</code> in exceptions — paste from <code>xmlns:</code> lines.</p>
+            </aside>
+          </section>
+        </section>
+
+        <!-- ═══ Chapter 6: RCN — business structure of the .gml ═══ -->
+        <section>
+          <section class="deck-dark">
+            <div class="deck-section-num">06</div>
+            <span class="deck-label">Data Cleaning &amp; Preparation · PUEB REMA</span>
+            <h1>RCN in the file</h1>
+            <p class="deck-section-blurb">
+              What the Poznań <code>.gml</code> represents in business terms: sales, properties, parcels, buildings, flats, and deeds — as linked records, not one nested story.
+            </p>
+            <p class="deck-footer">Data Cleaning &amp; Preparation</p>
+            <aside class="notes">
+              <p>This section is domain, not syntax: what each feature type <em>means</em>, then how IDs tie them together. The notebook will use the same vocabulary.</p>
+            </aside>
+          </section>
+
+          <section>
+            <span class="deck-label">RCN in the file</span>
+            <h2>What is in the export?</h2>
+            <p class="deck-subtitle">Rejestr Cen Nieruchomości — price and transaction facts</p>
+            <div class="deck-block">
+              <p>
+                The file is a long sequence of <code>gml:featureMember</code> blocks. Each block is <strong>one business object</strong>
+                (one transaction, one parcel, one apartment, …). The same real-world deal is split across several such objects,
+                connected by identifiers — not by putting everything inside one big XML subtree.
+              </p>
+            </div>
+            <ul class="deck-list-plain deck-list-compact" style="margin-top: 0.45em">
+              <li>You will filter by type (<code>RCN_Transakcja</code>, <code>RCN_Lokal</code>, …) and follow links to assemble a full case.</li>
+              <li>Geometry and address detail live on parcel / building / unit features; the transaction row carries price and pointers.</li>
+            </ul>
+            <p class="deck-footer">Data Cleaning &amp; Preparation</p>
+            <aside class="notes">
+              <p>Official GUGiK export from WEGA: one file can list millions of <code>featureMember</code> rows across years — always stream or chunk in Python.</p>
+            </aside>
+          </section>
+
+          <section>
+            <span class="deck-label">RCN in the file</span>
+            <h2>Six feature types (domain)</h2>
+            <p class="deck-subtitle">Polish tag names — plain-language role</p>
+            <ul class="deck-list-plain deck-list-compact">
+              <li><strong>RCN_Transakcja</strong> — one <strong>reported deal</strong>: transaction price, type (e.g. sale vs other), links to the legal deed and to the property aggregate.</li>
+              <li><strong>RCN_Nieruchomosc</strong> — the <strong>economic property</strong> sold as a bundle (may combine plot, building, unit; totals and roll-up attributes).</li>
+              <li><strong>RCN_Dzialka</strong> — a <strong>cadastral plot</strong> (land parcel): identifiers, land use, polygon geometry.</li>
+              <li><strong>RCN_Budynek</strong> — a <strong>building</strong> on a plot: footprint geometry, type/classification, address hooks.</li>
+              <li><strong>RCN_Lokal</strong> — a <strong>dwelling unit</strong> (flat): rooms, floor, usable area, unit price — what you use for typical apartment analytics.</li>
+              <li><strong>RCN_Dokument</strong> — the <strong>notarial deed</strong> (number, date, notary office) that is the legal basis of the transaction.</li>
+            </ul>
+            <p class="deck-footer">Data Cleaning &amp; Preparation</p>
+            <aside class="notes">
+              <p>Field-level dictionaries: GUGiK / INSPIRE application schema for RCN — use for exact code lists (e.g. transaction type, PKOB building class).</p>
+              <p><strong>Nieruchomosc</strong> vs <strong>Lokal</strong>: the first is the “whole property” record for the deal; the second is the apartment-specific slice when the object is a unit.</p>
+            </aside>
+          </section>
+
+          <section>
+            <span class="deck-label">RCN in the file</span>
+            <h2>How records tie together</h2>
+            <p class="deck-subtitle">A graph of IDs — not one nested XML document per deal</p>
+            <div class="deck-block">
+              <p>
+                Each feature has a <code>gml:id</code>. Elsewhere, <code>xlink:href</code> attributes store <strong>references</strong> to another feature&apos;s id
+                (deed, property bundle, parcel, …). So the business view is: <strong>many rows + foreign-key-style links</strong>, same idea as joins in a database.
+              </p>
+            </div>
+            <p class="deck-caption">
+              Typical path to “full picture”: <code>Transakcja</code> → <code>nieruchomosc</code> href → <code>RCN_Nieruchomosc</code> → hrefs to <code>Dzialka</code> / <code>Budynek</code> / <code>Lokal</code>; <code>podstawaPrawna</code> → <code>Dokument</code>.
+            </p>
+            <p class="deck-footer">Data Cleaning &amp; Preparation</p>
+            <aside class="notes">
+              <p>Why XML still looks flat: GML exchange models repeat one feature type per <code>featureMember</code>; cross-links avoid duplicating heavy geometry in every transaction row.</p>
+              <p>XPath / ElementTree: resolve href string equality against <code>gml:id</code> on the target element — teach as “lookup by primary key.”</p>
+            </aside>
+          </section>
+
+          <section>
+            <span class="deck-label">RCN in the file</span>
+            <h2>One transaction in XML</h2>
+            <p class="deck-subtitle">Price on the row · rest via <code>xlink:href</code></p>
+            <div class="deck-code-panel">
+              <pre class="deck-pre "><code
+                class="language-xml"
+                data-trim
+                data-line-numbers="1,9|2|3-5|6|7"
+              ><script type="text/template">
+<gml:featureMember>
+  <rcn:RCN_Transakcja gml:id="PL.PZGiK.7251.RCN_…_2026-01-21T11-13-32">
+    <rcn:oznaczenieTransakcji>1</rcn:oznaczenieTransakcji>
+    <rcn:rodzajTransakcji>1</rcn:rodzajTransakcji>
+    <rcn:cenaTransakcjiBrutto>6370000.0</rcn:cenaTransakcjiBrutto>
+    <rcn:podstawaPrawna xlink:href="PL.PZGiK.7251.RCN_…_2026-01-21T11-13-36"/>
+    <rcn:nieruchomosc xlink:href="PL.PZGiK.7251.RCN_…_2026-01-21T11-13-32"/>
+  </rcn:RCN_Transakcja>
+</gml:featureMember>
+</script></code></pre>
+            </div>
+            <p class="deck-caption">
+              Wrapper + id · scalars (incl. gross price) · link to deed · link to property aggregate — then follow those ids elsewhere in the file.
+            </p>
+            <p class="deck-footer">Data Cleaning &amp; Preparation</p>
+            <aside class="notes">
+              <p><strong>Lines 1–9</strong> — <code>featureMember</code> wraps one top-level feature.</p>
+              <p><strong>Line 2</strong> — <code>gml:id</code> is the stable key other rows reference.</p>
+              <p><strong>Lines 3–5</strong> — business fields: sequence id, transaction kind, gross price in PLN (example ~6.37M).</p>
+              <p><strong>Line 6</strong> — <code>podstawaPrawna</code> → <code>RCN_Dokument</code> for the notarial act.</p>
+              <p><strong>Line 7</strong> — <code>nieruchomosc</code> → <code>RCN_Nieruchomosc</code>, then drill to plots/buildings/units.</p>
+            </aside>
+          </section>
+        </section>
+
+        <!-- ═══ Chapter 7: Now let's parse it (was Ch 8) ═══ -->
+        <section class="deck-dark">
+          <div class="deck-section-num">07</div>
+          <span class="deck-label">Up next</span>
+          <h1>Now let's parse it</h1>
+          <p style="color: var(--deck-dark-muted); margin-top: 0.4em; font-size: 0.92em">
+            Open <code style="color: var(--deck-dark-fg)">gml_xml_tasks.ipynb</code> and work with<br />
+            <code style="color: var(--deck-dark-fg)">Baza_danych_RCN_Poznan_2021-2025.gml</code>
+          </p>
+          <p class="deck-footer">Data Cleaning &amp; Preparation</p>
+          <aside class="notes">
+            <p>Brief summary of what was covered:</p>
+            <ul>
+              <li>XML structure: elements, attributes, nesting — the three building blocks</li>
+              <li>Declaration, comments, empty tags — on the RCN excerpt; well-formedness — with document structure</li>
+              <li>Namespaces: 7 prefixes in the RCN file, the xmlns: declaration pattern, URIs as unique labels</li>
+              <li>RCN business structure: six feature types (transaction, property, plot, building, unit, deed) linked by <code>gml:id</code> / <code>xlink:href</code></li>
+            </ul>
+            <p>Hand off to next section: loading and querying this file in Python.</p>
+            <p>Remind students: <code>Baza_danych_RCN_Poznan_2021-2025.gml</code> is very large — use iterparse() instead of ElementTree.parse() to avoid loading everything into RAM. geopandas.read_file() can also read GML directly and is the fastest path to a GeoDataFrame.</p>
+          </aside>
+        </section>
+
       </div>
     </div>
     <script type="module" src="/src/main.js"></script>

@@ -1,0 +1,641 @@
+/* XML intro deck — two typefaces: Inter (UI), IBM Plex Mono (code & labels) */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+
+:root {
+  --deck-ink: #1e1e2e;
+  --deck-paper: #fafafa;
+  --deck-accent: #d44d1f;
+  --deck-accent2: #1a8a57;
+  --deck-mono: 'IBM Plex Mono', ui-monospace, monospace;
+  --deck-head: Inter, system-ui, -apple-system, sans-serif;
+  --deck-body: Inter, system-ui, -apple-system, sans-serif;
+  --deck-muted: #64647a;
+  --deck-dark-fg: #e8e8f0;
+  --deck-dark-muted: #9898b0;
+}
+
+/* ── Viewport & base ── */
+
+.reveal-viewport {
+  background: #111;
+}
+
+.reveal {
+  font-family: var(--deck-body);
+  color: var(--deck-ink);
+  font-size: 32px;
+}
+
+/* Skip .stack wrappers so padding/flex don’t offset nested vertical slides. */
+.reveal .slides > section:not(.stack),
+.reveal .slides > section.stack > section {
+  box-sizing: border-box;
+  text-align: left;
+  padding: 1.6rem 2.4rem 2rem;
+  height: 100%;
+  max-height: 100%;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  background: var(--deck-paper);
+}
+
+.reveal .slides > section:not(.stack).deck-dark,
+.reveal .slides > section.stack > section.deck-dark {
+  background: var(--deck-ink);
+  color: var(--deck-dark-fg);
+}
+
+/* ── Typography ── */
+
+.reveal h1,
+.reveal h2,
+.reveal h3 {
+  font-family: var(--deck-head);
+  text-transform: none;
+  letter-spacing: -0.02em;
+  text-align: left;
+  margin: 0 0 0.4em;
+  color: inherit;
+  font-weight: 700;
+}
+
+.reveal h1 {
+  font-size: 2.2em;
+  line-height: 1.08;
+}
+
+.reveal h2 {
+  font-size: 1.55em;
+}
+
+.reveal h3 {
+  font-size: 1.1em;
+  font-weight: 600;
+  color: var(--deck-accent);
+}
+
+.reveal .deck-dark h3 {
+  color: var(--deck-accent);
+}
+
+.reveal p,
+.reveal li {
+  font-family: var(--deck-body);
+  font-size: 0.9em;
+  line-height: 1.6;
+}
+
+.reveal p code,
+.reveal li code,
+.reveal td code,
+.reveal .deck-block code {
+  font-family: var(--deck-mono);
+  font-size: 0.88em;
+  font-weight: 500;
+  background: rgba(0, 0, 0, 0.06);
+  padding: 0.08em 0.28em;
+  border-radius: 4px;
+}
+
+.reveal ul.deck-tight {
+  margin: 0;
+  padding-left: 1.15em;
+}
+
+.reveal ul.deck-tight li {
+  margin: 0.12em 0;
+}
+
+/* ── Section label (eyebrow text) ── */
+
+.reveal .deck-label {
+  font-family: var(--deck-mono);
+  font-size: 0.5em;
+  color: var(--deck-accent);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  display: block;
+  margin-bottom: 0.35em;
+}
+
+.reveal .deck-dark .deck-label {
+  color: var(--deck-dark-muted);
+}
+
+/* ── Layout: columns ── */
+
+.reveal .deck-cols {
+  display: flex;
+  gap: 1.5rem;
+  align-items: stretch;   /* fills height so columns are equal */
+  flex: 1;
+  min-height: 0;
+}
+
+.reveal .deck-col {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Split layout: code + prose (pairs with optional single fragment on one side) ── */
+
+.reveal .deck-split {
+  display: grid;
+  grid-template-columns: minmax(0, 1.12fr) minmax(0, 1fr);
+  gap: 1.2rem;
+  align-items: start;
+  margin-top: 0.4em;
+}
+
+.reveal .deck-split .deck-code-panel {
+  margin-top: 0;
+}
+
+.reveal .deck-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  min-width: 0;
+}
+
+.reveal .deck-stack-connector {
+  font-family: var(--deck-mono);
+  font-size: 0.46em;
+  color: var(--deck-muted);
+  text-align: center;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin: 0;
+  line-height: 1.3;
+}
+
+/* ── Info boxes ── */
+
+.reveal .deck-box {
+  background: rgba(0, 0, 0, 0.04);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 6px;
+  padding: 0.7rem 1rem;
+  margin: 0.4em 0;
+  font-size: 0.9em;
+}
+
+.reveal .deck-box.deck-box-highlight {
+  background: rgba(212, 77, 31, 0.07);
+  border-color: rgba(212, 77, 31, 0.25);
+}
+
+.reveal .deck-dark .deck-box {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.1);
+  color: var(--deck-dark-fg);
+}
+
+/* Boxes inside columns grow to fill the column */
+.reveal .deck-col > .deck-box {
+  flex: 1;
+}
+
+.reveal .deck-box p {
+  margin: 0;
+  font-size: 1em;
+}
+
+.reveal .deck-box strong {
+  color: var(--deck-accent);
+}
+
+.reveal .deck-dark .deck-box strong {
+  color: var(--deck-accent);
+}
+
+/* ── Well-formed rules grid ── */
+
+.reveal .deck-rules {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  flex: 1;
+  min-height: 0;
+  align-content: stretch;  /* cards fill vertical space evenly */
+  margin-top: 0.5em;
+}
+
+.reveal .deck-rule {
+  background: rgba(0, 0, 0, 0.04);
+  border: 1px solid rgba(0, 0, 0, 0.07);
+  border-radius: 8px;
+  padding: 1rem 1.1rem;
+  display: flex;
+  gap: 0.8rem;
+  align-items: flex-start;
+}
+
+.reveal .deck-rule-num {
+  font-family: var(--deck-head);
+  font-size: 1.8em;
+  font-weight: 700;
+  color: var(--deck-accent);
+  line-height: 1;
+  flex-shrink: 0;
+  min-width: 1.2em;
+}
+
+.reveal .deck-rule p {
+  margin: 0;
+  font-size: 0.9em;
+  line-height: 1.5;
+}
+
+.reveal .deck-rule p + p {
+  margin-top: 0.25em;
+  color: var(--deck-muted);
+}
+
+/* ── Column format label (CSV / JSON / XML) ── */
+
+.reveal .deck-col-tag {
+  font-family: var(--deck-mono);
+  font-size: 0.5em;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--deck-muted);
+  margin: 0 0 0.3em;
+}
+
+.reveal .deck-col-tag.active {
+  color: var(--deck-accent);
+}
+
+/* Small muted text under a column's code block */
+.reveal .deck-col-desc {
+  font-size: 0.75em;
+  color: var(--deck-muted);
+  margin-top: 0.45em;
+  line-height: 1.45;
+}
+
+.reveal .deck-col-desc.active {
+  color: var(--deck-accent);
+}
+
+/* Muted helper line above content (e.g. "reveal levels with ↓") */
+.reveal .deck-hint {
+  font-size: 0.82em;
+  color: var(--deck-muted);
+  margin-bottom: 0.4em;
+}
+
+/* Small mono caption below a code block */
+.reveal .deck-caption {
+  font-family: var(--deck-mono);
+  font-size: 0.55em;
+  color: var(--deck-muted);
+  margin-top: 0.4em;
+  line-height: 1.5;
+}
+
+/* ── Code blocks ── */
+
+.reveal pre.deck-pre {
+  width: 100%;
+  margin: 0.4em 0;
+  border-radius: 6px;
+  box-shadow: none;
+  background: #1e1e2e;
+  flex-shrink: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.reveal pre.deck-pre code {
+  display: block;
+  overflow-y: auto;
+  font-family: var(--deck-mono);
+  font-size: 0.82em;       /* up from 0.58em — much larger for projector */
+  padding: 0.85rem 1.1rem;
+  line-height: 1.6;
+  color: #e8e8f0;
+  background: var(--deck-ink);
+}
+
+.reveal pre.deck-pre.deck-pre-lg code {
+  font-size: 0.95em;       /* up from 0.68em */
+}
+
+/* Long XML excerpts on a single slide */
+.reveal pre.deck-pre.deck-pre-compact code {
+  font-size: 0.68em;
+  line-height: 1.5;
+  padding: 0.65rem 0.85rem;
+}
+
+/* Code in multi-column layout — slightly smaller to fit but still readable */
+.reveal .deck-cols .deck-pre code {
+  font-size: 0.72em;       /* up from 0.52em */
+}
+
+/* ── Callouts under code ── */
+
+.reveal .deck-callouts {
+  margin-top: 0.5em;
+  font-family: var(--deck-mono);
+  font-size: 0.68em;       /* up from 0.55em */
+  color: var(--deck-muted);
+  flex: 1;                 /* fills remaining vertical space */
+  min-height: 0;
+}
+
+.reveal .deck-callouts p {
+  font-family: var(--deck-mono);
+  font-size: 1em;
+  line-height: 1.65;
+  margin: 0.35em 0;
+}
+
+.reveal .deck-dark .deck-callouts {
+  color: var(--deck-dark-muted);
+}
+
+/* ── Tree diagram ── */
+
+.reveal .deck-tree {
+  font-family: var(--deck-mono);
+  font-size: 0.75em;       /* up from 0.62em */
+  line-height: 1.6;
+  border-left: 3px solid var(--deck-accent);
+  padding-left: 1rem;
+  margin: 0.4em 0;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.reveal .deck-tree-row {
+  margin: 0.25em 0;
+}
+
+.reveal .deck-tree-indent-1 { padding-left: 1.25rem; }
+.reveal .deck-tree-indent-2 { padding-left: 2.5rem; }
+.reveal .deck-tree-indent-3 { padding-left: 3.75rem; }
+.reveal .deck-tree-indent-4 { padding-left: 5rem; }
+
+.reveal .deck-tree-tag {
+  color: var(--deck-accent);
+}
+
+.reveal .deck-tree-val {
+  color: var(--deck-accent2);
+}
+
+/* ── Entity diagram ── */
+
+.reveal .deck-entity-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.55rem;
+  flex: 1;
+  min-height: 0;
+  justify-content: center;
+}
+
+.reveal .deck-entity-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.7rem;
+  flex-wrap: wrap;
+}
+
+.reveal .deck-entity {
+  font-family: var(--deck-mono);
+  font-size: 0.62em;       /* up from 0.52em */
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 6px;
+  padding: 0.6rem 0.9rem;
+  min-width: 9em;
+  text-align: center;
+}
+
+.reveal .deck-entity-title {
+  color: var(--deck-accent);
+  font-weight: 600;
+  margin-bottom: 0.3em;
+}
+
+.reveal .deck-entity-fields {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.88em;
+  line-height: 1.45;
+}
+
+.reveal .deck-arrow {
+  font-family: var(--deck-mono);
+  font-size: 0.62em;       /* up from 0.52em */
+  color: var(--deck-dark-muted);
+  white-space: nowrap;
+}
+
+.reveal .deck-arrow-h {
+  padding: 0 0.25rem;
+}
+
+.reveal .deck-entity-note {
+  font-family: var(--deck-mono);
+  font-size: 0.55em;       /* up from 0.46em */
+  color: var(--deck-dark-muted);
+  text-align: center;
+  margin-top: 0.5rem;
+  max-width: 90%;
+}
+
+/* ── Lists ── */
+
+.reveal ul.deck-list-plain {
+  list-style: none;
+  padding: 0;
+  margin: 0.3em 0 0;
+}
+
+.reveal ul.deck-list-plain li {
+  position: relative;
+  padding-left: 1.1em;
+  margin: 0.4em 0;
+  font-size: 0.92em;       /* up from 0.82em */
+  line-height: 1.55;
+}
+
+.reveal ul.deck-list-plain li::before {
+  content: '→';
+  position: absolute;
+  left: 0;
+  color: var(--deck-accent);
+  font-family: var(--deck-mono);
+  font-size: 0.85em;
+}
+
+/* ── Dark section title: one factual line under h1 (no marketing “opener”) ── */
+
+.reveal .deck-dark .deck-section-blurb {
+  font-size: 0.78em;
+  line-height: 1.55;
+  color: var(--deck-dark-muted);
+  margin: 0.55em 0 0;
+  max-width: 34em;
+}
+
+.reveal .deck-dark .deck-section-blurb code {
+  font-family: var(--deck-mono);
+  font-size: 0.92em;
+  color: #c4c4dc;
+  background: rgba(255, 255, 255, 0.06);
+  padding: 0.1em 0.32em;
+  border-radius: 4px;
+}
+
+/*
+ * Reusable slide patterns (Inter + IBM Plex Mono only):
+ * .deck-subtitle     — one line under h2 (mono, muted)
+ * .deck-block        — neutral panel for definitions or short notes
+ * .deck-block--accent — same + left keyline in deck accent
+ * .deck-code-panel   — border around a code block; pair with .deck-grow for flex fill
+ * .deck-list-compact — tighter bullets with .deck-list-plain
+ * .deck-lead         — opening sentence after a heading (slightly smaller body)
+ */
+
+.reveal .deck-subtitle {
+  font-family: var(--deck-mono);
+  font-size: 0.52em;
+  color: var(--deck-muted);
+  margin: -0.1em 0 0.55em;
+  letter-spacing: 0.03em;
+  font-weight: 500;
+  line-height: 1.35;
+}
+
+.reveal .deck-lead {
+  font-size: 0.9em;
+  line-height: 1.58;
+  margin: 0.35em 0 0.6em;
+  max-width: 42em;
+}
+
+.reveal .deck-block {
+  background: rgba(0, 0, 0, 0.035);
+  border: 1px solid rgba(0, 0, 0, 0.09);
+  border-radius: 6px;
+  padding: 0.7rem 0.95rem;
+  margin: 0.35em 0 0.55em;
+  max-width: 42em;
+}
+
+.reveal .deck-block p {
+  margin: 0;
+  font-size: 0.88em;
+  line-height: 1.55;
+}
+
+.reveal .deck-block p + p {
+  margin-top: 0.4em;
+}
+
+.reveal .deck-block--accent {
+  border-left: 3px solid var(--deck-accent);
+  padding-left: 0.9rem;
+}
+
+.reveal .deck-code-panel {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  border-radius: 6px;
+  overflow: hidden;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  margin-top: 0.15em;
+}
+
+.reveal .deck-code-panel .deck-pre {
+  margin: 0;
+  flex: 1;
+  min-height: 0;
+}
+
+.reveal ul.deck-list-plain.deck-list-compact li {
+  margin: 0.28em 0;
+  font-size: 0.88em;
+  line-height: 1.5;
+}
+
+/* ── Section number watermark ── */
+
+.reveal .deck-section-num {
+  font-family: var(--deck-head);
+  font-size: 4.5em;
+  font-weight: 700;
+  color: rgba(212, 77, 31, 0.1);
+  position: absolute;
+  top: -5px;
+  right: 20px;
+  line-height: 1;
+  pointer-events: none;
+}
+
+.reveal .deck-dark .deck-section-num {
+  color: rgba(212, 77, 31, 0.13);
+}
+
+/* ── Footer ── */
+
+.reveal .deck-footer {
+  position: absolute;
+  bottom: 14px;
+  right: 22px;
+  font-family: var(--deck-mono);
+  font-size: 0.38em;
+  color: rgba(0, 0, 0, 0.28);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.reveal .deck-dark .deck-footer {
+  color: rgba(255, 255, 255, 0.22);
+}
+
+/* ── Reveal.js chrome ── */
+
+.reveal .progress span {
+  background: var(--deck-accent);
+}
+
+.reveal .controls button {
+  color: var(--deck-accent);
+}
+
+.reveal .slide-number {
+  font-family: var(--deck-mono);
+  font-size: 0.65em;
+  background: transparent;
+  color: rgba(128, 128, 128, 0.75);
+}
+
+/* ── Highlight.js line numbers ── */
+
+.reveal .hljs-ln-numbers .hljs-ln-n {
+  color: rgba(255, 255, 255, 0.25);
+}
+
+/* ── Utility ── */
+
+.reveal .deck-grow {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}

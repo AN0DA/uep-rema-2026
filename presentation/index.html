@@ -735,9 +735,191 @@ tree.findall('gml:featureMember/rcn:RCN_Lokal', ns)
           </section>
         </section>
 
+        <!-- ═══ Data prep theory ═══ -->
+        <section>
+          <section class="deck-dark">
+            <div class="deck-section-num">07</div>
+            <span class="deck-label">Data Cleaning &amp; Preparation · PUEB REMA</span>
+            <h1>Why Data Preparation Matters</h1>
+            <p class="deck-section-blurb">
+              The foundation of analysis and the consequences of a naive data loading approach.
+            </p>
+            <p class="deck-footer">Data Cleaning &amp; Preparation</p>
+            <aside class="notes">
+              <p>Agenda for this section: Why correct data loading is the foundation of analysis (Garbage In, Garbage Out) and the risks of naive loading.</p>
+            </aside>
+          </section>
+
+          <section>
+            <span class="deck-label">Why Data Preparation Matters</span>
+            <h2>The Foundation of Analysis</h2>
+            <p class="deck-subtitle">Consequences of a naive approach</p>
+            <div class="deck-block">
+              <p>
+                Proper data loading is more than just reading a file. It dictates the efficiency, accuracy, and feasibility of all subsequent <strong>Data Cleaning</strong> steps.
+              </p>
+            </div>
+            <ul class="deck-list-plain deck-list-compact" style="margin-top: 0.45em">
+              <li><strong>Memory Overload (RAM):</strong> Loading an entire multi-gigabyte GML file into memory at once can crash your environment.</li>
+              <li><strong>Loss of Structure:</strong> Flattening nested XML elements incorrectly can sever crucial relationships (e.g., losing the address linked to a specific transaction).</li>
+              <li><strong>Encoding Errors:</strong> Misinterpreting text encodings ruins string matching later (e.g., grouping by street names with broken Polish characters).</li>
+            </ul>
+            <p class="deck-footer">Data Cleaning &amp; Preparation</p>
+            <aside class="notes">
+              <p>Emphasize the "Garbage In, Garbage Out" concept. If we load the data wrong, our cleaning scripts will fail or produce false insights.</p>
+              <p>The GML file we use is massive. If we try to read it like a simple CSV, the Python kernel will likely die.</p>
+            </aside>
+          </section>
+        </section>
+
+
+        <section>
+          <section class="deck-dark">
+            <div class="deck-section-num">08</div>
+            <span class="deck-label">Data Cleaning &amp; Preparation · PUEB REMA</span>
+            <h1>Best Practices</h1>
+            <p class="deck-section-blurb">
+              Key principles and a checklist to follow before writing your parsing code.
+            </p>
+            <p class="deck-footer">Data Cleaning &amp; Preparation</p>
+            <aside class="notes">
+              <p>Agenda for this section: Three golden rules: Selective Loading, Namespace Management, and Input Type Awareness.</p>
+            </aside>
+          </section>
+
+          <section>
+            <span class="deck-label">Best Practices</span>
+            <h2>What to pay attention to</h2>
+            <p class="deck-subtitle">Checklist for loading spatial/XML data</p>
+            <ul class="deck-list-plain deck-list-compact" style="margin-top: 0.25em">
+              <li>
+                <strong>1. Selective Loading:</strong> Don't load everything. Filter data at the parsing stage. If you only need apartments, extract only <code>RCN_Lokal</code> nodes.
+              </li>
+              <li style="margin-top: 0.4em">
+                <strong>2. Namespace Management:</strong> XML files like GML rely heavily on prefixes (<code>rcn:</code>, <code>gml:</code>). Always define a namespace dictionary in your code, or your searches will return empty results.
+              </li>
+              <li style="margin-top: 0.4em">
+                <strong>3. Input Type Awareness:</strong> Standard XML parsers treat absolutely everything as text. Prices and areas will be imported as strings. You must plan for type casting (e.g., <code>to_numeric</code>) before analyzing.
+              </li>
+            </ul>
+            <p class="deck-footer">Data Cleaning &amp; Preparation</p>
+            <aside class="notes">
+              <p><strong>Selective loading</strong> is our primary defense against RAM limits. We ignore plots and buildings if our topic is premises.</p>
+              <p><strong>Namespaces</strong> are the #1 reason students get errors when writing XPath queries. If you don't declare the URI, the parser is blind to the tags.</p>
+              <p><strong>Types:</strong> Remind them that calculating a median price on text data will crash the script. Type casting bridges Loading and Cleaning.</p>
+            </aside>
+          </section>
+        </section>
+
+        <!-- ═══ Data Prep Example ═══ -->
+         <section>
+          <section class="deck-dark">
+            <div class="deck-section-num">09</div>
+            <span class="deck-label">Data Cleaning &amp; Preparation · PUEB REMA</span>
+            <h1>Live Demo: XML to DataFrame</h1>
+            <p class="deck-section-blurb">
+              Let's look at the example how to extract notarial deeds (<code>RCN_Dokument</code>) from the 2026 dataset.
+            </p>
+            <p class="deck-footer">Data Cleaning &amp; Preparation</p>
+            <aside class="notes">
+              <p>Transition: "Now that we know why selective loading and namespaces matter, let's see how it looks in Python."</p>
+              <p>We are parsing deeds (Dokument) as an example. Students will parse premises (Lokal) in their tasks.</p>
+            </aside>
+          </section>
+
+          <section>
+            <span class="deck-label">Live Demo</span>
+            <h2>1. Loading &amp; Filtering</h2>
+            <p class="deck-subtitle">Parsing the file and targeting specific nodes</p>
+            <div class="deck-code-panel">
+              <pre class="deck-pre"><code class="language-python" data-trim data-line-numbers="1-3|4-6|7-12|13">
+              import pandas as pd
+              import xml.etree.ElementTree as ET
+
+              tree = ET.parse('../data/Baza_danych_RCN_Poznań_2026.gml')
+              root = tree.getroot()
+
+              ns = {
+                  'gml': 'http://www.opengis.net/gml/3.2',
+                  'rcn': 'urn:gugik:specyfikacje:gmlas:rejestrcennieruchomosci:1.0'
+              }
+
+              document_nodes = root.findall('.//rcn:RCN_Dokument', ns)
+              </code></pre>
+            </div>
+            <ul class="deck-list-plain deck-list-compact" style="margin-top: 0.45em">
+              <li><strong>ET.parse:</strong> Reads the entire XML document into a tree structure.</li>
+              <li><strong>Namespaces (ns):</strong> We bind the prefixes found in the file to their full URIs.</li>
+              <li><strong>.findall():</strong> The essence of <em>Selective Loading</em>. We grab only the notarial deed nodes, ignoring all plots and buildings.</li>
+            </ul>
+            <p class="deck-footer">Data Cleaning &amp; Preparation</p>
+            <aside class="notes">
+              <p>Remind them: If we forget the 'ns' dictionary, .findall() will return an empty list because it won't understand what 'rcn:' means.</p>
+            </aside>
+          </section>
+
+          <section>
+            <span class="deck-label">Live Demo</span>
+            <h2>2. Flattening the Data</h2>
+            <p class="deck-subtitle">Extracting elements into a flat list of dictionaries</p>
+            <div class="deck-code-panel deck-grow">
+              <pre class="deck-pre r-stretch"><code class="language-python" data-trim data-line-numbers="1-2|3|4-7|8-12|13">
+              document_list = []
+              for doc in document_nodes:
+                  doc_dict = {}
+                  for child in doc:
+                      # Strip the long namespace URI from the tag name
+                      clean_tag = child.tag.split('}')[-1]
+                      
+                      # Extract the text from inside the element (if it exists)
+                      value = child.text.strip() if child.text else None
+                      doc_dict[clean_tag] = value
+                      
+                  document_list.append(doc_dict)
+              </code></pre>
+            </div>
+            <p class="deck-caption">
+              Without splitting by <code>}</code>, tags look like: <code>{urn:gugik:...}oznaczenieDokumentu</code>. We want clean column names.
+            </p>
+            <p class="deck-footer">Data Cleaning &amp; Preparation</p>
+            <aside class="notes">
+              <p>This is the core parsing loop. We iterate over the deeds, and then iterate over their children.</p>
+              <p>Point out the 'child.tag' split. This removes the Clark notation (the URI in curly braces) so our Pandas columns will have readable names.</p>
+              <p>Preview for their task: Remind them that here we only take 'child.text', but in their task, they might need to look for attributes (like xlink:href).</p>
+            </aside>
+          </section>
+
+          <section>
+            <span class="deck-label">Live Demo</span>
+            <h2>3. Building the DataFrame</h2>
+            <p class="deck-subtitle">Converting to Pandas and basic cleanup</p>
+            <div class="deck-code-panel">
+              <pre class="deck-pre"><code class="language-python" data-trim data-line-numbers="1|3-4|6-7|8">
+              df_documents = pd.DataFrame(document_list)
+
+              # Drop 'ghost' columns that XML might have created as entirely empty
+              df_documents = df_documents.dropna(axis=1, how='all')
+
+              print(df_documents.head(3))
+              print(df_documents.dtypes)
+              </code></pre>
+            </div>
+            <ul class="deck-list-plain deck-list-compact" style="margin-top: 0.45em">
+              <li><strong>pd.DataFrame:</strong> Instantly converts our list of dictionaries into a flat, tabular format.</li>
+              <li><strong>.dropna(how='all'):</strong> GML files often contain empty structural tags (like <code>&lt;gml:boundedBy /&gt;</code>). This command removes columns consisting of 100% NaN values.</li>
+              <li><strong>All strings:</strong> <code>.dtypes</code> will reveal that everything is currently an 'object' (text).</li>
+            </ul>
+            <p class="deck-footer">Data Cleaning &amp; Preparation</p>
+            <aside class="notes">
+              <p>The 'dropna' step is a fantastic quick win. It removes noise from the dataset immediately.</p>
+              <p>The output of .dtypes is the perfect bridge to the next section: everything is text! The Data Cleaning team will show how to cast these to numbers/dates.</p>
+            </aside>
+          </section>
+        </section>
+
         <!-- ═══ Chapter 7: Now let's parse it (was Ch 8) ═══ -->
         <section class="deck-dark">
-          <div class="deck-section-num">07</div>
+          <div class="deck-section-num">10</div>
           <span class="deck-label">Up next</span>
           <h1>Now let's parse it</h1>
           <p style="color: var(--deck-dark-muted); margin-top: 0.4em; font-size: 0.92em">
@@ -757,7 +939,9 @@ tree.findall('gml:featureMember/rcn:RCN_Lokal', ns)
             <p>Remind students: <code>Baza_danych_RCN_Poznan_2021-2025.gml</code> is very large — use iterparse() instead of ElementTree.parse() to avoid loading everything into RAM. geopandas.read_file() can also read GML directly and is the fastest path to a GeoDataFrame.</p>
           </aside>
         </section>
-
+        
+        
+        
       </div>
     </div>
     <script type="module" src="/src/main.js"></script>

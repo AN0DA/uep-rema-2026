@@ -11,3 +11,6 @@ presentation/dist/
 # OS / editor
 .DS_Store
 Thumbs.db
+
+# Large data files
+data/*.gml

@@ -1,99 +1,113 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Data Cleaning &amp; Preparation - UEP REMA</title>
-  </head>
-  <body>
-    <div class="reveal">
-      <div class="slides">
 
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Data Cleaning &amp; Preparation - UEP REMA</title>
+</head>
+
+<body>
+  <div class="reveal">
+    <div class="slides">
+
+      <section class="deck-dark">
+        <div class="deck-section-num">00</div>
+        <span class="deck-label">Poznań University of Economics and Business · Real Estate Market Analysis</span>
+        <br /><br /><br /><br /><br />
+        <h1>Data Cleaning &amp; Preparation</h1>
+        <p style="color: var(--deck-dark-muted); margin-top: 0.3em">
+          Understanding the format behind GML spatial data files <br />and loading them into Python
+        </p>
+        <p class="deck-footer">Data Cleaning &amp; Preparation</p>
+        <aside class="notes">
+        </aside>
+      </section>
+
+      <!-- ═══ Chapter 1: Introduction to XML ═══ -->
+      <section>
         <section class="deck-dark">
-          <div class="deck-section-num">00</div>
-          <span class="deck-label">Poznań University of Economics and Business · Real Estate Market Analysis</span>
-          <br/><br/><br/><br/><br/>
-          <h1>Data Cleaning &amp; Preparation</h1>
-          <p style="color: var(--deck-dark-muted); margin-top: 0.3em">
-            Understanding the format behind GML spatial data files <br />and loading them into Python
+          <div class="deck-section-num">01</div>
+          <span class="deck-label">Data Cleaning &amp; Preparation · PUEB REMA</span>
+          <h1>Introduction to XML</h1>
+          <p class="deck-section-blurb">
+            Vocabulary, then a short RCN GML fragment. Syntax and namespaces follow in later sections.
           </p>
           <p class="deck-footer">Data Cleaning &amp; Preparation</p>
           <aside class="notes">
+            <p>Agenda for this section:</p>
+            <ul>
+              <li>What XML is and why spatial data uses it (not CSV/JSON)</li>
+              <li>XML syntax building blocks — elements, attributes, tree structure</li>
+              <li>On the RCN excerpt: declaration, comments, empty elements — pointed out on-slide</li>
+              <li>Namespaces — what the gml:, rcn:, xsi: prefixes mean</li>
+              <li>RCN in the file — six business object types and how they link</li>
+            </ul>
+            <p>Goal: confident <em>reading</em> of GML files, not writing them. You'll work with these files all
+              semester.</p>
+            <p>Pitch: stress that GML is XML — same parser concepts — without sounding like advertising.</p>
           </aside>
         </section>
 
-        <!-- ═══ Chapter 1: Introduction to XML ═══ -->
         <section>
-          <section class="deck-dark">
-            <div class="deck-section-num">01</div>
-            <span class="deck-label">Data Cleaning &amp; Preparation · PUEB REMA</span>
-            <h1>Introduction to XML</h1>
-            <p class="deck-section-blurb">
-              Vocabulary, then a short RCN GML fragment. Syntax and namespaces follow in later sections.
+          <span class="deck-label">Introduction to XML</span>
+          <h2>What is XML?</h2>
+          <p class="deck-subtitle">Hierarchical text · elements and attributes</p>
+          <div class="deck-block">
+            <p>
+              <strong>XML</strong> is plain-text markup: nested elements, optional attributes, one document tree.
+              You define tags or adopt a standard (e.g. <strong>GML</strong>); a parser builds the tree.
             </p>
-            <p class="deck-footer">Data Cleaning &amp; Preparation</p>
-            <aside class="notes">
-              <p>Agenda for this section:</p>
-              <ul>
-                <li>What XML is and why spatial data uses it (not CSV/JSON)</li>
-                <li>XML syntax building blocks — elements, attributes, tree structure</li>
-                <li>On the RCN excerpt: declaration, comments, empty elements — pointed out on-slide</li>
-                <li>Namespaces — what the gml:, rcn:, xsi: prefixes mean</li>
-                <li>RCN in the file — six business object types and how they link</li>
-              </ul>
-              <p>Goal: confident <em>reading</em> of GML files, not writing them. You'll work with these files all semester.</p>
-              <p>Pitch: stress that GML is XML — same parser concepts — without sounding like advertising.</p>
-            </aside>
-          </section>
+          </div>
+          <h3>Why it is used for exchange</h3>
+          <ul class="deck-list-plain deck-list-compact" style="margin-top: 0.25em">
+            <li><strong>Self-describing</strong> — tags name the data; you can read structure without a separate data
+              dictionary.</li>
+            <li><strong>Validation</strong> — schemas (e.g. XSD) define allowed elements and types before data enters a
+              pipeline.</li>
+            <li><strong>Rich fields</strong> — attributes carry units, IDs, language, or “nil” flags next to values.
+            </li>
+            <li><strong>Interoperability</strong> — long track record in government, GIS (OGC/ISO), and regulated
+              sectors.</li>
+          </ul>
+          <p class="deck-footer">Data Cleaning &amp; Preparation</p>
+          <aside class="notes">
+            <p><strong>Self-describing vs CSV:</strong> column order alone does not document meaning; XML element names
+              do. Still, semantics ultimately come from the standard (e.g. GML application schema), not from the angle
+              brackets alone.</p>
+            <p><strong>History:</strong> XML 1.0 — W3C Recommendation (1998), simplified from SGML for the web; Unicode;
+              meant for documents and machine interchange. XSD (and others) describe valid structure.</p>
+            <p>XML is a generic interchange format, not “web pages” — unlike HTML’s fixed tag set. GML uses XML for
+              schema validation, tooling, and ISO/OGC alignment.</p>
+            <p>Many students know JSON: both are tree-shaped text; XML adds attributes on elements and has a long trail
+              in government and GIS procurement.</p>
+          </aside>
+        </section>
 
-          <section>
-            <span class="deck-label">Introduction to XML</span>
-            <h2>What is XML?</h2>
-            <p class="deck-subtitle">Hierarchical text · elements and attributes</p>
-            <div class="deck-block">
-              <p>
-                <strong>XML</strong> is plain-text markup: nested elements, optional attributes, one document tree.
-                You define tags or adopt a standard (e.g. <strong>GML</strong>); a parser builds the tree.
-              </p>
-            </div>
-            <h3>Why it is used for exchange</h3>
-            <ul class="deck-list-plain deck-list-compact" style="margin-top: 0.25em">
-              <li><strong>Self-describing</strong> — tags name the data; you can read structure without a separate data dictionary.</li>
-              <li><strong>Validation</strong> — schemas (e.g. XSD) define allowed elements and types before data enters a pipeline.</li>
-              <li><strong>Rich fields</strong> — attributes carry units, IDs, language, or “nil” flags next to values.</li>
-              <li><strong>Interoperability</strong> — long track record in government, GIS (OGC/ISO), and regulated sectors.</li>
-            </ul>
-            <p class="deck-footer">Data Cleaning &amp; Preparation</p>
-            <aside class="notes">
-              <p><strong>Self-describing vs CSV:</strong> column order alone does not document meaning; XML element names do. Still, semantics ultimately come from the standard (e.g. GML application schema), not from the angle brackets alone.</p>
-              <p><strong>History:</strong> XML 1.0 — W3C Recommendation (1998), simplified from SGML for the web; Unicode; meant for documents and machine interchange. XSD (and others) describe valid structure.</p>
-              <p>XML is a generic interchange format, not “web pages” — unlike HTML’s fixed tag set. GML uses XML for schema validation, tooling, and ISO/OGC alignment.</p>
-              <p>Many students know JSON: both are tree-shaped text; XML adds attributes on elements and has a long trail in government and GIS procurement.</p>
-            </aside>
-          </section>
+        <section>
+          <span class="deck-label">Introduction to XML</span>
+          <h2>Where you see XML</h2>
+          <p class="deck-subtitle">Beyond this course</p>
+          <ul class="deck-list-plain deck-list-compact" style="margin-top: 0.35em">
+            <li>Geodata and graphics: GML, KML, SVG</li>
+            <li>Office and tools: OOXML (<code>.docx</code> / <code>.xlsx</code>), RSS, Android layouts, build files
+            </li>
+            <li>Enterprise: SOAP, B2B payloads where schemas matter</li>
+          </ul>
+          <p class="deck-footer">Data Cleaning &amp; Preparation</p>
+          <aside class="notes">
+            <p><strong>OOXML:</strong> <code>.docx</code>/<code>.xlsx</code> are ZIP archives of XML parts, not a single
+              big file.</p>
+            <p>Other examples: Maven <code>pom.xml</code>, many IDE and CI configs, Atom/RSS feeds.</p>
+            <p>Use this slide only to show XML is ubiquitous — the course focuses on GML/RCN.</p>
+          </aside>
+        </section>
 
-          <section>
-            <span class="deck-label">Introduction to XML</span>
-            <h2>Where you see XML</h2>
-            <p class="deck-subtitle">Beyond this course</p>
-            <ul class="deck-list-plain deck-list-compact" style="margin-top: 0.35em">
-              <li>Geodata and graphics: GML, KML, SVG</li>
-              <li>Office and tools: OOXML (<code>.docx</code> / <code>.xlsx</code>), RSS, Android layouts, build files</li>
-              <li>Enterprise: SOAP, B2B payloads where schemas matter</li>
-            </ul>
-            <p class="deck-footer">Data Cleaning &amp; Preparation</p>
-            <aside class="notes">
-              <p><strong>OOXML:</strong> <code>.docx</code>/<code>.xlsx</code> are ZIP archives of XML parts, not a single big file.</p>
-              <p>Other examples: Maven <code>pom.xml</code>, many IDE and CI configs, Atom/RSS feeds.</p>
-              <p>Use this slide only to show XML is ubiquitous — the course focuses on GML/RCN.</p>
-            </aside>
-          </section>
-
-          <section>
-            <span class="deck-label">Introduction to XML</span>
-            <h2>RCN export (excerpt)</h2>
-            <div class="deck-code-panel deck-grow">
-              <pre class="deck-pre r-stretch"><code
+        <section>
+          <span class="deck-label">Introduction to XML</span>
+          <h2>RCN export (excerpt)</h2>
+          <div class="deck-code-panel deck-grow">
+            <pre class="deck-pre r-stretch"><code
                 class="language-xml"
                 data-trim
                 data-line-numbers="1|2-6|7-15|17-24"
@@ -123,79 +137,97 @@ xsi:schemaLocation="urn:gugik:specyfikacje:gmlas:rejestrcennieruchomosci:1.0 RCN
 </rcn:RCN_Dokument>
 </gml:featureMember>
 </script></code></pre>
-            </div>
-            <p class="deck-caption">
-              Declaration (line 1) · comments (2–6, ignored by parsers) · <code>&lt;gml:boundedBy … /&gt;</code> = empty element
+          </div>
+          <p class="deck-caption">
+            Declaration (line 1) · comments (2–6, ignored by parsers) · <code>&lt;gml:boundedBy … /&gt;</code> = empty
+            element
+          </p>
+          <p class="deck-footer">Data Cleaning &amp; Preparation</p>
+          <aside class="notes">
+            <p>Step through the four highlighted sections:</p>
+            <ul>
+              <li><strong>Line 1</strong> — XML declaration (<code>&lt;?xml … ?&gt;</code>): version 1.0, UTF-8. Must be
+                first in the file. <code>standalone="yes"</code> = no external DTD.</li>
+              <li><strong>Lines 2–6</strong> — comment block (<code>&lt;!-- … --&gt;</code>). Export metadata from WEGA;
+                parsers ignore comments entirely.</li>
+              <li><strong>Lines 7–15</strong> — root element FeatureCollection. Seven <code>xmlns:</code> lines declare
+                namespace prefixes — normal in GML.</li>
+              <li><strong>Lines 17–24</strong> — first <code>featureMember</code>: <code>RCN_Dokument</code> (notarial
+                deed), with <code>xsi:nil</code> geometry, deed number, date, notary.</li>
+            </ul>
+            <p><strong>Self-closing:</strong> <code>&lt;gml:boundedBy xsi:nil="true" /&gt;</code> — no text content;
+              <code>/&gt;</code> closes the tag. Same idea as <code>&lt;boundedBy&gt;&lt;/boundedBy&gt;</code> when
+              empty.
             </p>
-            <p class="deck-footer">Data Cleaning &amp; Preparation</p>
-            <aside class="notes">
-              <p>Step through the four highlighted sections:</p>
-              <ul>
-                <li><strong>Line 1</strong> — XML declaration (<code>&lt;?xml … ?&gt;</code>): version 1.0, UTF-8. Must be first in the file. <code>standalone="yes"</code> = no external DTD.</li>
-                <li><strong>Lines 2–6</strong> — comment block (<code>&lt;!-- … --&gt;</code>). Export metadata from WEGA; parsers ignore comments entirely.</li>
-                <li><strong>Lines 7–15</strong> — root element FeatureCollection. Seven <code>xmlns:</code> lines declare namespace prefixes — normal in GML.</li>
-                <li><strong>Lines 17–24</strong> — first <code>featureMember</code>: <code>RCN_Dokument</code> (notarial deed), with <code>xsi:nil</code> geometry, deed number, date, notary.</li>
-              </ul>
-              <p><strong>Self-closing:</strong> <code>&lt;gml:boundedBy xsi:nil="true" /&gt;</code> — no text content; <code>/&gt;</code> closes the tag. Same idea as <code>&lt;boundedBy&gt;&lt;/boundedBy&gt;</code> when empty.</p>
-              <p>Ask: "Has anyone opened a file like this before?" — The goal today is that by the end, this looks readable.</p>
-              <p>The course file <code>Baza_danych_RCN_Poznan_2021-2025.gml</code> is a full multi-year Poznań export (millions of lines). Use streaming (<code>iterparse</code>) or <code>geopandas.read_file()</code>, not a naive full-tree load.</p>
-            </aside>
-          </section>
+            <p>Ask: "Has anyone opened a file like this before?" — The goal today is that by the end, this looks
+              readable.</p>
+            <p>The course file <code>Baza_danych_RCN_Poznan_2021-2025.gml</code> is a full multi-year Poznań export
+              (millions of lines). Use streaming (<code>iterparse</code>) or <code>geopandas.read_file()</code>, not a
+              naive full-tree load.</p>
+          </aside>
+        </section>
+      </section>
+
+      <!-- ═══ Chapter 2: Format overview ═══ -->
+      <section>
+        <section class="deck-dark">
+          <div class="deck-section-num">02</div>
+          <span class="deck-label">Data Cleaning &amp; Preparation · PUEB REMA</span>
+          <h1>Format overview</h1>
+          <p class="deck-section-blurb">
+            One example record (<code>LOK_1</code>) as CSV, JSON, and XML. Later material assumes XML because GML is
+            XML.
+          </p>
+          <p class="deck-footer">Data Cleaning &amp; Preparation</p>
+          <aside class="notes">
+            <p>Same fictional flat in three encodings: contrast flat table vs nested object vs tagged tree.</p>
+            <p>Why XML for cadastre/GML: schemas, attributes, namespaces — covered in depth later; this section is
+              orientation only.</p>
+          </aside>
         </section>
 
-        <!-- ═══ Chapter 2: Format overview ═══ -->
         <section>
-          <section class="deck-dark">
-            <div class="deck-section-num">02</div>
-            <span class="deck-label">Data Cleaning &amp; Preparation · PUEB REMA</span>
-            <h1>Format overview</h1>
-            <p class="deck-section-blurb">
-              One example record (<code>LOK_1</code>) as CSV, JSON, and XML. Later material assumes XML because GML is XML.
+          <span class="deck-label">Format overview · CSV</span>
+          <h2>CSV</h2>
+          <p class="deck-subtitle">Comma-separated values · flat tables</p>
+          <div class="deck-block">
+            <p>
+              <strong>Comma-Separated Values</strong> — one row per record, columns for fields. Typical for spreadsheets
+              and SQL exports.
             </p>
-            <p class="deck-footer">Data Cleaning &amp; Preparation</p>
-            <aside class="notes">
-              <p>Same fictional flat in three encodings: contrast flat table vs nested object vs tagged tree.</p>
-              <p>Why XML for cadastre/GML: schemas, attributes, namespaces — covered in depth later; this section is orientation only.</p>
-            </aside>
-          </section>
-
-          <section>
-            <span class="deck-label">Format overview · CSV</span>
-            <h2>CSV</h2>
-            <p class="deck-subtitle">Comma-separated values · flat tables</p>
-            <div class="deck-block">
-              <p>
-                <strong>Comma-Separated Values</strong> — one row per record, columns for fields. Typical for spreadsheets and SQL exports.
-              </p>
-            </div>
-            <div class="deck-code-panel deck-grow">
-              <pre class="deck-pre r-stretch"><code class="language-plaintext" data-trim>
+          </div>
+          <div class="deck-code-panel deck-grow">
+            <pre class="deck-pre r-stretch"><code class="language-plaintext" data-trim>
 id,pow,cena
 LOK_1,60.25,750000
 </code></pre>
-            </div>
-            <ul class="deck-list-plain deck-list-compact" style="margin-top: 0.5em">
-              <li>Works well for quick analysis in pandas or Excel.</li>
-              <li>No native hierarchy: nested data usually means extra columns, encoding tricks, or another file and a join.</li>
-              <li>Units and rich geometry have no standard column — often WKT in text or separate layers.</li>
-            </ul>
-            <p class="deck-footer">Data Cleaning &amp; Preparation</p>
-            <aside class="notes">
-              <p>CSV: think spreadsheet. Works well for simple tables. Can't represent nested structures (e.g. an address inside a property record) or add metadata like units of measure to individual fields without extra columns.</p>
-            </aside>
-          </section>
+          </div>
+          <ul class="deck-list-plain deck-list-compact" style="margin-top: 0.5em">
+            <li>Works well for quick analysis in pandas or Excel.</li>
+            <li>No native hierarchy: nested data usually means extra columns, encoding tricks, or another file and a
+              join.</li>
+            <li>Units and rich geometry have no standard column — often WKT in text or separate layers.</li>
+          </ul>
+          <p class="deck-footer">Data Cleaning &amp; Preparation</p>
+          <aside class="notes">
+            <p>CSV: think spreadsheet. Works well for simple tables. Can't represent nested structures (e.g. an address
+              inside a property record) or add metadata like units of measure to individual fields without extra
+              columns.</p>
+          </aside>
+        </section>
 
-          <section>
-            <span class="deck-label">Format overview · JSON</span>
-            <h2>JSON</h2>
-            <p class="deck-subtitle">JavaScript Object Notation · nested objects</p>
-            <div class="deck-block">
-              <p>
-                <strong>JSON</strong> — objects <code>{ }</code>, arrays <code>[ ]</code>, key–value pairs. Common in REST APIs and document stores.
-              </p>
-            </div>
-            <div class="deck-code-panel deck-grow">
-              <pre class="deck-pre r-stretch"><code class="language-json" data-trim>
+        <section>
+          <span class="deck-label">Format overview · JSON</span>
+          <h2>JSON</h2>
+          <p class="deck-subtitle">JavaScript Object Notation · nested objects</p>
+          <div class="deck-block">
+            <p>
+              <strong>JSON</strong> — objects <code>{ }</code>, arrays <code>[ ]</code>, key–value pairs. Common in REST
+              APIs and document stores.
+            </p>
+          </div>
+          <div class="deck-code-panel deck-grow">
+            <pre class="deck-pre r-stretch"><code class="language-json" data-trim>
 {
   "id": "LOK_1",
   "pow": 60.25,
@@ -203,29 +235,32 @@ LOK_1,60.25,750000
   "cena": 750000
 }
 </code></pre>
-            </div>
-            <ul class="deck-list-plain deck-list-compact" style="margin-top: 0.5em">
-              <li>Nesting maps cleanly to Python dicts and JavaScript objects.</li>
-              <li>Units or typed values often need extra keys or wrapper objects.</li>
-              <li>GeoJSON is widely used; cadastre-grade pipelines often still use GML/XML.</li>
-            </ul>
-            <p class="deck-footer">Data Cleaning &amp; Preparation</p>
-            <aside class="notes">
-              <p>JSON: think Python dict. Nested structures work. Units are awkward — you need a separate <code>uom</code> field or a wrapper. GeoJSON exists but is not as rich as GML for official cadastre / INSPIRE-style pipelines.</p>
-            </aside>
-          </section>
+          </div>
+          <ul class="deck-list-plain deck-list-compact" style="margin-top: 0.5em">
+            <li>Nesting maps cleanly to Python dicts and JavaScript objects.</li>
+            <li>Units or typed values often need extra keys or wrapper objects.</li>
+            <li>GeoJSON is widely used; cadastre-grade pipelines often still use GML/XML.</li>
+          </ul>
+          <p class="deck-footer">Data Cleaning &amp; Preparation</p>
+          <aside class="notes">
+            <p>JSON: think Python dict. Nested structures work. Units are awkward — you need a separate <code>uom</code>
+              field or a wrapper. GeoJSON exists but is not as rich as GML for official cadastre / INSPIRE-style
+              pipelines.</p>
+          </aside>
+        </section>
 
-          <section>
-            <span class="deck-label">Format overview · XML</span>
-            <h2>XML</h2>
-            <p class="deck-subtitle">eXtensible Markup Language · tagged trees</p>
-            <div class="deck-block">
-              <p>
-                <strong>XML</strong> — elements in angle brackets, attributes, a strict document tree. Vocabularies such as GML are defined with schemas (e.g. XSD).
-              </p>
-            </div>
-            <div class="deck-code-panel deck-grow">
-              <pre class="deck-pre r-stretch"><code class="language-xml" data-trim><script type="text/template">
+        <section>
+          <span class="deck-label">Format overview · XML</span>
+          <h2>XML</h2>
+          <p class="deck-subtitle">eXtensible Markup Language · tagged trees</p>
+          <div class="deck-block">
+            <p>
+              <strong>XML</strong> — elements in angle brackets, attributes, a strict document tree. Vocabularies such
+              as GML are defined with schemas (e.g. XSD).
+            </p>
+          </div>
+          <div class="deck-code-panel deck-grow">
+            <pre class="deck-pre r-stretch"><code class="language-xml" data-trim><script type="text/template">
 <lokal>
   <pow uom="m2">60.25</pow>
   <cena>750000</cena>
@@ -234,73 +269,82 @@ LOK_1,60.25,750000
   </adres>
 </lokal>
 </script></code></pre>
-            </div>
-            <ul class="deck-list-plain deck-list-compact" style="margin-top: 0.5em">
-              <li>Attributes such as <code>uom="m2"</code> can sit on the same element as the value.</li>
-              <li>Child elements express containment without a second table.</li>
-              <li>GML, KML, SVG, CityGML, and many government feeds use XML; XSD can validate structure before ingest.</li>
-            </ul>
-            <p class="deck-footer">Data Cleaning &amp; Preparation</p>
-            <aside class="notes">
-              <p>XML = eXtensible Markup Language (W3C, 1998). "Extensible" means you invent tag names — unlike fixed HTML tags.</p>
-              <p>Same property as CSV/JSON: <strong>attributes</strong> — <code>uom="m2"</code> is natural; in JSON you'd often use <code>{"value": 60.25, "uom": "m2"}</code>. <strong>Nesting</strong> — address as child element; CSV would need a join. <strong>Geometry</strong> — in GML, polygons carry CRS and structure; CSV often uses WKT strings.</p>
-              <p>Why cadastre / OGC stacks use XML: nested geometry, XSD validation, ISO/OGC history since the 1990s, procurement expectations.</p>
-            </aside>
-          </section>
+          </div>
+          <ul class="deck-list-plain deck-list-compact" style="margin-top: 0.5em">
+            <li>Attributes such as <code>uom="m2"</code> can sit on the same element as the value.</li>
+            <li>Child elements express containment without a second table.</li>
+            <li>GML, KML, SVG, CityGML, and many government feeds use XML; XSD can validate structure before ingest.
+            </li>
+          </ul>
+          <p class="deck-footer">Data Cleaning &amp; Preparation</p>
+          <aside class="notes">
+            <p>XML = eXtensible Markup Language (W3C, 1998). "Extensible" means you invent tag names — unlike fixed HTML
+              tags.</p>
+            <p>Same property as CSV/JSON: <strong>attributes</strong> — <code>uom="m2"</code> is natural; in JSON you'd
+              often use <code>{"value": 60.25, "uom": "m2"}</code>. <strong>Nesting</strong> — address as child element;
+              CSV would need a join. <strong>Geometry</strong> — in GML, polygons carry CRS and structure; CSV often
+              uses WKT strings.</p>
+            <p>Why cadastre / OGC stacks use XML: nested geometry, XSD validation, ISO/OGC history since the 1990s,
+              procurement expectations.</p>
+          </aside>
+        </section>
+      </section>
+
+      <!-- ═══ Chapter 3: Building blocks ═══ -->
+      <section>
+        <section class="deck-dark">
+          <div class="deck-section-num">03</div>
+          <span class="deck-label">Data Cleaning &amp; Preparation · PUEB REMA</span>
+          <h1>Building blocks</h1>
+          <p class="deck-section-blurb">
+            Elements and attributes — toy examples first, then the same ideas in RCN GML.
+          </p>
+          <p class="deck-footer">Data Cleaning &amp; Preparation</p>
+          <aside class="notes">
+            <p>Roadmap: (1) element = opening tag + content + closing tag; (2) three real RCN fields; (3) attributes —
+              bare value vs <code>uom</code> + syntax on one slide; (4) recurring attribute names in exports.</p>
+            <p>Namespaces (<code>rcn:</code>, <code>gml:</code>) get a full treatment in the next main section; here we
+              focus on shape.</p>
+          </aside>
         </section>
 
-        <!-- ═══ Chapter 3: Building blocks ═══ -->
-        <section>
-          <section class="deck-dark">
-            <div class="deck-section-num">03</div>
-            <span class="deck-label">Data Cleaning &amp; Preparation · PUEB REMA</span>
-            <h1>Building blocks</h1>
-            <p class="deck-section-blurb">
-              Elements and attributes — toy examples first, then the same ideas in RCN GML.
-            </p>
-            <p class="deck-footer">Data Cleaning &amp; Preparation</p>
-            <aside class="notes">
-              <p>Roadmap: (1) element = opening tag + content + closing tag; (2) three real RCN fields; (3) attributes — bare value vs <code>uom</code> + syntax on one slide; (4) recurring attribute names in exports.</p>
-              <p>Namespaces (<code>rcn:</code>, <code>gml:</code>) get a full treatment in the next main section; here we focus on shape.</p>
-            </aside>
-          </section>
-
-          <!-- 3a: Elements — generic -->
-          <section data-auto-animate data-auto-animate-id="elements">
-            <span class="deck-label">Building blocks</span>
-            <h2>Elements</h2>
-            <p class="deck-subtitle">Opening tag · content · closing tag</p>
-            <div class="deck-code-panel">
-              <pre class="deck-pre deck-pre-lg" data-id="element-demo"><code class="language-xml" data-trim>
+        <!-- 3a: Elements — generic -->
+        <section data-auto-animate data-auto-animate-id="elements">
+          <span class="deck-label">Building blocks</span>
+          <h2>Elements</h2>
+          <p class="deck-subtitle">Opening tag · content · closing tag</p>
+          <div class="deck-code-panel">
+            <pre class="deck-pre deck-pre-lg" data-id="element-demo"><code class="language-xml" data-trim>
 &lt;city&gt;Poznań&lt;/city&gt;
 </code></pre>
-            </div>
-            <div class="fragment" style="margin-top: 0.45em">
-              <ul class="deck-list-plain deck-list-compact">
-                <li><span class="deck-tree-tag">&lt;city&gt;</span> — opening tag</li>
-                <li><strong>Poznań</strong> — text content</li>
-                <li><span class="deck-tree-tag">&lt;/city&gt;</span> — closing tag</li>
-              </ul>
-            </div>
-            <p class="deck-footer">Data Cleaning &amp; Preparation</p>
-            <aside class="notes">
-              <p>An element = opening tag + content + closing tag. Three parts, every time.</p>
-              <ul>
-                <li>Opening tag: the element name in angle brackets.</li>
-                <li>Text content: the value — or child elements instead of text, or empty.</li>
-                <li>Closing tag: must match the opening tag; <code>/</code> marks closing.</li>
-              </ul>
-              <p>Attributes, nesting, and namespaces build on this pattern. Next slide: the same structure in RCN data.</p>
-            </aside>
-          </section>
+          </div>
+          <div class="fragment" style="margin-top: 0.45em">
+            <ul class="deck-list-plain deck-list-compact">
+              <li><span class="deck-tree-tag">&lt;city&gt;</span> — opening tag</li>
+              <li><strong>Poznań</strong> — text content</li>
+              <li><span class="deck-tree-tag">&lt;/city&gt;</span> — closing tag</li>
+            </ul>
+          </div>
+          <p class="deck-footer">Data Cleaning &amp; Preparation</p>
+          <aside class="notes">
+            <p>An element = opening tag + content + closing tag. Three parts, every time.</p>
+            <ul>
+              <li>Opening tag: the element name in angle brackets.</li>
+              <li>Text content: the value — or child elements instead of text, or empty.</li>
+              <li>Closing tag: must match the opening tag; <code>/</code> marks closing.</li>
+            </ul>
+            <p>Attributes, nesting, and namespaces build on this pattern. Next slide: the same structure in RCN data.
+            </p>
+          </aside>
+        </section>
 
-          <!-- 3b: Elements — in RCN data (auto-animates from 3a) -->
-          <section data-auto-animate data-auto-animate-id="elements">
-            <span class="deck-label">Building blocks</span>
-            <h2>Elements in RCN data</h2>
-            <p class="deck-subtitle">Same structure — longer names, namespace prefix</p>
-            <div class="deck-code-panel">
-              <pre class="deck-pre" data-id="element-demo"><code
+        <!-- 3b: Elements — in RCN data (auto-animates from 3a) -->
+        <section data-auto-animate data-auto-animate-id="elements">
+          <span class="deck-label">Building blocks</span>
+          <h2>Elements in RCN data</h2>
+          <p class="deck-subtitle">Same structure — longer names, namespace prefix</p>
+          <div class="deck-code-panel">
+            <pre class="deck-pre" data-id="element-demo"><code
                 class="language-xml"
                 data-trim
                 data-line-numbers="1|2|3"
@@ -309,70 +353,78 @@ LOK_1,60.25,750000
 <rcn:dataSporzadzeniaDokumentu>2025-12-17</rcn:dataSporzadzeniaDokumentu>
 <rcn:tworcaDokumentu>Glanowski Piotr Mikołajczak Katarzyna Kancelaria Notarialna</rcn:tworcaDokumentu>
 </script></code></pre>
-            </div>
-            <div class="deck-block" style="margin-top: 0.45em">
-              <p>
-                <code>rcn:</code> is a namespace prefix — the element is still <strong>opening tag · text · closing tag</strong>.
-                Full meaning of prefixes in the namespaces section.
-              </p>
-            </div>
-            <p class="deck-footer">Data Cleaning &amp; Preparation</p>
-            <aside class="notes">
-              <p>Same structure as <code>&lt;city&gt;…&lt;/city&gt;</code> — longer tag names and a prefix.</p>
-              <ul>
-                <li><strong>oznaczenieDokumentu</strong> — deed identifier (e.g. 13129 in notary 30322’s registry).</li>
-                <li><strong>dataSporzadzeniaDokumentu</strong> — document date.</li>
-                <li><strong>tworcaDokumentu</strong> — notary / office text.</li>
-              </ul>
-              <p>Treat <code>rcn:</code> as shorthand; focus on the name after the colon until namespaces are introduced.</p>
-            </aside>
-          </section>
+          </div>
+          <div class="deck-block" style="margin-top: 0.45em">
+            <p>
+              <code>rcn:</code> is a namespace prefix — the element is still <strong>opening tag · text · closing
+                tag</strong>.
+              Full meaning of prefixes in the namespaces section.
+            </p>
+          </div>
+          <p class="deck-footer">Data Cleaning &amp; Preparation</p>
+          <aside class="notes">
+            <p>Same structure as <code>&lt;city&gt;…&lt;/city&gt;</code> — longer tag names and a prefix.</p>
+            <ul>
+              <li><strong>oznaczenieDokumentu</strong> — deed identifier (e.g. 13129 in notary 30322’s registry).</li>
+              <li><strong>dataSporzadzeniaDokumentu</strong> — document date.</li>
+              <li><strong>tworcaDokumentu</strong> — notary / office text.</li>
+            </ul>
+            <p>Treat <code>rcn:</code> as shorthand; focus on the name after the colon until namespaces are introduced.
+            </p>
+          </aside>
+        </section>
 
-          <!-- 3c: Attributes — bare value → uom (one slide, fragments) -->
-          <section>
-            <span class="deck-label">Building blocks</span>
-            <h2>Attributes</h2>
-            <p class="deck-subtitle">Bare value → unit metadata on the opening tag</p>
-            <div class="deck-code-panel">
-              <pre class="deck-pre deck-pre-lg"><code class="language-xml" data-trim>
+        <!-- 3c: Attributes — bare value → uom (one slide, fragments) -->
+        <section>
+          <span class="deck-label">Building blocks</span>
+          <h2>Attributes</h2>
+          <p class="deck-subtitle">Bare value → unit metadata on the opening tag</p>
+          <div class="deck-code-panel">
+            <pre class="deck-pre deck-pre-lg"><code class="language-xml" data-trim>
 &lt;pow&gt;60.25&lt;/pow&gt;
 </code></pre>
-            </div>
-              <div class="deck-block" style="margin: 0">
-                <p style="margin: 0">
-                  <code>60.25</code> has no <strong>unit</strong> (m², ha, km²…) — for analysis, units must travel with the number, not only in a separate column or comment.
-                </p>
-              </div>
-            <div class="fragment" style="margin-top: 0.45em">
-              <p class="deck-stack-connector">Put metadata on the same element</p>
-              <div class="deck-code-panel">
-                <pre class="deck-pre deck-pre-lg"><code class="language-xml" data-trim>
+          </div>
+          <div class="deck-block" style="margin: 0">
+            <p style="margin: 0">
+              <code>60.25</code> has no <strong>unit</strong> (m², ha, km²…) — for analysis, units must travel with the
+              number, not only in a separate column or comment.
+            </p>
+          </div>
+          <div class="fragment" style="margin-top: 0.45em">
+            <p class="deck-stack-connector">Put metadata on the same element</p>
+            <div class="deck-code-panel">
+              <pre class="deck-pre deck-pre-lg"><code class="language-xml" data-trim>
 &lt;pow uom="m2"&gt;60.25&lt;/pow&gt;
 </code></pre>
-              </div>
-              <p style="margin: 0.45em 0 0; font-size: 0.88em; line-height: 1.5">
-                Value unchanged; <code>uom="m2"</code> is unit of measure (real pattern from <code>RCN_Lokal</code>).
-              </p>
-              <p class="deck-caption" style="margin: 0.35em 0 0">
-                Syntax: <code>name="value"</code> inside <code>&lt;…&gt;</code>; quotes; several attributes = space-separated (order does not matter).
-              </p>
             </div>
-            <p class="deck-footer">Data Cleaning &amp; Preparation</p>
-            <aside class="notes">
-              <p><code>pow</code> suggests area; mixing ha and m² without tracking units breaks joins and aggregates.</p>
-              <p>CSV workaround: extra unit column or <code>pow_m2</code> in the header — XML keeps value and unit on one node.</p>
-              <p>Attribute rules: only in the opening tag; <code>name="value"</code>; double quotes standard (single quotes valid).</p>
-              <p><code>uom</code> everywhere in GML — <code>ha</code> for parcels, <code>m2</code> for units, <code>m</code> for lengths. Always extract <code>uom</code> when you extract numbers.</p>
-            </aside>
-          </section>
+            <p style="margin: 0.45em 0 0; font-size: 0.88em; line-height: 1.5">
+              Value unchanged; <code>uom="m2"</code> is unit of measure (real pattern from <code>RCN_Lokal</code>).
+            </p>
+            <p class="deck-caption" style="margin: 0.35em 0 0">
+              Syntax: <code>name="value"</code> inside <code>&lt;…&gt;</code>; quotes; several attributes =
+              space-separated (order does not matter).
+            </p>
+          </div>
+          <p class="deck-footer">Data Cleaning &amp; Preparation</p>
+          <aside class="notes">
+            <p><code>pow</code> suggests area; mixing ha and m² without tracking units breaks joins and aggregates.</p>
+            <p>CSV workaround: extra unit column or <code>pow_m2</code> in the header — XML keeps value and unit on one
+              node.</p>
+            <p>Attribute rules: only in the opening tag; <code>name="value"</code>; double quotes standard (single
+              quotes valid).</p>
+            <p><code>uom</code> everywhere in GML — <code>ha</code> for parcels, <code>m2</code> for units,
+              <code>m</code> for lengths. Always extract <code>uom</code> when you extract numbers.
+            </p>
+          </aside>
+        </section>
 
-          <!-- 3d: Common attributes — patterns in the file -->
-          <section>
-            <span class="deck-label">Building blocks</span>
-            <h2>Common attributes</h2>
-            <p class="deck-subtitle">Fragments of real geometry and property fields</p>
-            <div class="deck-code-panel">
-              <pre class="deck-pre "><code
+        <!-- 3d: Common attributes — patterns in the file -->
+        <section>
+          <span class="deck-label">Building blocks</span>
+          <h2>Common attributes</h2>
+          <p class="deck-subtitle">Fragments of real geometry and property fields</p>
+          <div class="deck-code-panel">
+            <pre class="deck-pre "><code
                 class="language-xml"
                 data-trim
                 data-line-numbers="1|2|3|4"
@@ -382,70 +434,89 @@ LOK_1,60.25,750000
 <rcn:polePowierzchniEwidencyjnej uom="ha">0.0792</rcn:polePowierzchniEwidencyjnej>
 <gml:boundedBy xsi:nil="true" nilReason="missing"/>
 </script></code></pre>
-            </div>
-              <ul class="deck-list-plain deck-list-compact">
-                <li><code>srsName</code>, <code>gml:id</code> — CRS + stable id</li>
-                <li><code>count</code>, <code>srsDimension</code> — how many coordinates, 2D vs 3D</li>
-                <li><code>uom</code> — units (check before comparing numbers)</li>
-                <li><code>xsi:nil</code> — “no value here” (e.g. missing geometry)</li>
-              </ul>
+          </div>
+          <ul class="deck-list-plain deck-list-compact">
+            <li><code>srsName</code>, <code>gml:id</code> — CRS + stable id</li>
+            <li><code>count</code>, <code>srsDimension</code> — how many coordinates, 2D vs 3D</li>
+            <li><code>uom</code> — units (check before comparing numbers)</li>
+            <li><code>xsi:nil</code> — “no value here” (e.g. missing geometry)</li>
+          </ul>
 
-            <p class="deck-footer">Data Cleaning &amp; Preparation</p>
-            <aside class="notes">
-              <p><strong>srsName / gml:id</strong> — EPSG:2177 = Polish grid (Układ 1992); <code>gml:id</code> is unique in the file for references.</p>
-              <p><strong>count / srsDimension</strong> — how many ordinates in <code>posList</code>; <code>srsDimension=2</code> → (x,y) pairs.</p>
-              <p><strong>uom</strong> — ha vs m²; convert before aggregating.</p>
-              <p><strong>xsi:nil</strong> — expected for records without geometry; parsers map to null/NaN, not necessarily an error.</p>
-            </aside>
-          </section>
+          <p class="deck-footer">Data Cleaning &amp; Preparation</p>
+          <aside class="notes">
+            <p><strong>srsName / gml:id</strong> — EPSG:2177 = Polish grid (Układ 1992); <code>gml:id</code> is unique
+              in the file for references.</p>
+            <p><strong>count / srsDimension</strong> — how many ordinates in <code>posList</code>;
+              <code>srsDimension=2</code> → (x,y) pairs.
+            </p>
+            <p><strong>uom</strong> — ha vs m²; convert before aggregating.</p>
+            <p><strong>xsi:nil</strong> — expected for records without geometry; parsers map to null/NaN, not
+              necessarily an error.</p>
+          </aside>
+        </section>
+      </section>
+
+      <!-- ═══ Chapter 4: Document structure (tree) ═══ -->
+      <section>
+        <section class="deck-dark">
+          <div class="deck-section-num">04</div>
+          <span class="deck-label">Data Cleaning &amp; Preparation · PUEB REMA</span>
+          <h1>Document structure</h1>
+          <p class="deck-section-blurb">
+            One root element, parent–child nesting, and paths to data — then a real <code>RCN_Lokal</code> fragment.
+          </p>
+          <p class="deck-footer">Data Cleaning &amp; Preparation</p>
+          <aside class="notes">
+            <p>Sequence: (1) what “tree” means in XML; (2) schematic of one feature; (3) trimmed file excerpt with
+              highlights.</p>
+            <p>Link to practice: navigation = XPath / ElementTree <code>find</code> / <code>iter</code> — you follow tag
+              paths, not fixed column indices.</p>
+          </aside>
         </section>
 
-        <!-- ═══ Chapter 4: Document structure (tree) ═══ -->
         <section>
-          <section class="deck-dark">
-            <div class="deck-section-num">04</div>
-            <span class="deck-label">Data Cleaning &amp; Preparation · PUEB REMA</span>
-            <h1>Document structure</h1>
-            <p class="deck-section-blurb">
-              One root element, parent–child nesting, and paths to data — then a real <code>RCN_Lokal</code> fragment.
+          <span class="deck-label">Document structure</span>
+          <h2>XML is a tree</h2>
+          <p class="deck-subtitle">Not a single table — a hierarchy of elements</p>
+          <div class="deck-block">
+            <p>
+              Each element has <strong>at most one parent</strong> (except the <strong>root</strong>, which has none).
+              Children are fully
+              <em>inside</em> the parent — that nesting is how “this address belongs to this flat” is represented.
             </p>
-            <p class="deck-footer">Data Cleaning &amp; Preparation</p>
-            <aside class="notes">
-              <p>Sequence: (1) what “tree” means in XML; (2) schematic of one feature; (3) trimmed file excerpt with highlights.</p>
-              <p>Link to practice: navigation = XPath / ElementTree <code>find</code> / <code>iter</code> — you follow tag paths, not fixed column indices.</p>
-            </aside>
-          </section>
+          </div>
+          <ul class="deck-list-plain deck-list-compact" style="margin-top: 0.45em">
+            <li><strong>Root</strong> — one outer element wraps the whole document (GML:
+              <code>gml:FeatureCollection</code>).
+            </li>
+            <li><strong>Records</strong> — wrappers like <code>gml:featureMember</code> and typed features such as
+              <code>rcn:RCN_Lokal</code>.
+            </li>
+            <li><strong>Paths</strong> — nested fields are reached by walking the tree (e.g. … → <code>RCN_Adres</code>
+              → <code>miejscowosc</code>).</li>
+            <li><strong>Well-formed</strong> — matching tags, proper nesting, one root; invalid XML fails in the parser
+              (official RCN exports are well-formed).</li>
+          </ul>
+          <p class="deck-footer">Data Cleaning &amp; Preparation</p>
+          <aside class="notes">
+            <p>Contrast with CSV: one row per flat cannot put a whole address hierarchy in one cell without encoding
+              tricks; XML uses sub-elements.</p>
+            <p>Formal tree terms: nodes = elements, leaves often = text or empty elements; document order of siblings
+              can matter for streaming parsers.</p>
+            <p><strong>Well-formedness (moved from former “syntax” block):</strong> close every tag (or use
+              <code>&lt;tag /&gt;</code>); tags are case-sensitive; no overlapping tags; exactly one document root.
+              Unlike HTML, parsers do not “fix” broken markup. GUGiK GML is reliably well-formed; hand-edited or
+              string-built XML may not be.
+            </p>
+          </aside>
+        </section>
 
-          <section>
-            <span class="deck-label">Document structure</span>
-            <h2>XML is a tree</h2>
-            <p class="deck-subtitle">Not a single table — a hierarchy of elements</p>
-            <div class="deck-block">
-              <p>
-                Each element has <strong>at most one parent</strong> (except the <strong>root</strong>, which has none). Children are fully
-                <em>inside</em> the parent — that nesting is how “this address belongs to this flat” is represented.
-              </p>
-            </div>
-            <ul class="deck-list-plain deck-list-compact" style="margin-top: 0.45em">
-              <li><strong>Root</strong> — one outer element wraps the whole document (GML: <code>gml:FeatureCollection</code>).</li>
-              <li><strong>Records</strong> — wrappers like <code>gml:featureMember</code> and typed features such as <code>rcn:RCN_Lokal</code>.</li>
-              <li><strong>Paths</strong> — nested fields are reached by walking the tree (e.g. … → <code>RCN_Adres</code> → <code>miejscowosc</code>).</li>
-              <li><strong>Well-formed</strong> — matching tags, proper nesting, one root; invalid XML fails in the parser (official RCN exports are well-formed).</li>
-            </ul>
-            <p class="deck-footer">Data Cleaning &amp; Preparation</p>
-            <aside class="notes">
-              <p>Contrast with CSV: one row per flat cannot put a whole address hierarchy in one cell without encoding tricks; XML uses sub-elements.</p>
-              <p>Formal tree terms: nodes = elements, leaves often = text or empty elements; document order of siblings can matter for streaming parsers.</p>
-              <p><strong>Well-formedness (moved from former “syntax” block):</strong> close every tag (or use <code>&lt;tag /&gt;</code>); tags are case-sensitive; no overlapping tags; exactly one document root. Unlike HTML, parsers do not “fix” broken markup. GUGiK GML is reliably well-formed; hand-edited or string-built XML may not be.</p>
-            </aside>
-          </section>
-
-          <section>
-            <span class="deck-label">Document structure</span>
-            <h2>One feature (schematic)</h2>
-            <p class="deck-subtitle">Scalars vs nested block (address)</p>
-            <div class="deck-code-panel">
-              <pre class="deck-pre"><code class="language-plaintext" data-trim>
+        <section>
+          <span class="deck-label">Document structure</span>
+          <h2>One feature (schematic)</h2>
+          <p class="deck-subtitle">Scalars vs nested block (address)</p>
+          <div class="deck-code-panel">
+            <pre class="deck-pre"><code class="language-plaintext" data-trim>
 FeatureCollection
  └─ featureMember
      └─ RCN_Lokal
@@ -453,26 +524,32 @@ FeatureCollection
           └─ adresBudynkuZLokalem
                └─ RCN_Adres → miejscowosc · ulica · numer …
 </code></pre>
-            </div>
-            <p class="deck-caption">
-              Flat fields sit directly under <code>RCN_Lokal</code>; the address is a <strong>subtree</strong> (container → <code>RCN_Adres</code> → fields).
+          </div>
+          <p class="deck-caption">
+            Flat fields sit directly under <code>RCN_Lokal</code>; the address is a <strong>subtree</strong> (container
+            → <code>RCN_Adres</code> → fields).
+          </p>
+          <p class="deck-footer">Data Cleaning &amp; Preparation</p>
+          <aside class="notes">
+            <p><strong>FeatureCollection</strong> — file root. <strong>featureMember</strong> — one wrapper per feature
+              in the exchange model.</p>
+            <p><strong>RCN_Lokal</strong> — apartment / unit record (lokal). Scalar children: ids, counts, area (with
+              <code>uom</code>), price, etc.
             </p>
-            <p class="deck-footer">Data Cleaning &amp; Preparation</p>
-            <aside class="notes">
-              <p><strong>FeatureCollection</strong> — file root. <strong>featureMember</strong> — one wrapper per feature in the exchange model.</p>
-              <p><strong>RCN_Lokal</strong> — apartment / unit record (lokal). Scalar children: ids, counts, area (with <code>uom</code>), price, etc.</p>
-              <p><strong>adresBudynkuZLokalem</strong> — not a string; it holds an <code>RCN_Adres</code> child with city, street, number.</p>
-              <p>Retrieving a street means following a path, not “column 17”. XPath / <code>find()</code> express that path.</p>
-            </aside>
-          </section>
+            <p><strong>adresBudynkuZLokalem</strong> — not a string; it holds an <code>RCN_Adres</code> child with city,
+              street, number.</p>
+            <p>Retrieving a street means following a path, not “column 17”. XPath / <code>find()</code> express that
+              path.</p>
+          </aside>
+        </section>
 
-          <section>
-            <span class="deck-label">Document structure</span>
-            <h2><code>RCN_Lokal</code> (trimmed)</h2>
-            <p class="deck-subtitle">Real excerpt — indentation follows depth</p>
-          
-            <div class="deck-code-panel">
-              <pre class="deck-pre"><code
+        <section>
+          <span class="deck-label">Document structure</span>
+          <h2><code>RCN_Lokal</code> (trimmed)</h2>
+          <p class="deck-subtitle">Real excerpt — indentation follows depth</p>
+
+          <div class="deck-code-panel">
+            <pre class="deck-pre"><code
                 class="language-xml"
                 data-trim
                 data-fragment-index="1"
@@ -493,77 +570,86 @@ FeatureCollection
             </rcn:adresBudynkuZLokalem>
           </rcn:RCN_Lokal>
           </script></code></pre>
-            </div>
-          
-            <div style="margin-top: 0.4em">
-              <ul class="deck-list-plain deck-list-compact">
-                <li class="fragment" data-fragment-index="1">
-                  <strong>1 / 14</strong> — feature open/close + <code>gml:id</code> (stable id in the file).
-                </li>
-                <li class="fragment" data-fragment-index="2">
-                  <strong>2–6</strong> — scalar fields; area carries <code>uom="m2"</code>.
-                </li>
-                <li class="fragment" data-fragment-index="3">
-                  <strong>7–13</strong> — nested address block (<code>adresBudynkuZLokalem</code> → <code>RCN_Adres</code> → fields).
-                </li>
-              </ul>
-            </div>
-          
-            <p class="deck-footer">Data Cleaning &amp; Preparation</p>
-          
-            <aside class="notes">
-              <p>Source: real Poznań RCN export (representative snippet). <code>gml:id</code> encodes registry context and a unique key — treat as opaque unless you parse the convention.</p>
-              <p>Whitespace between tags is only for humans; parsers build the same tree without relying on indentation.</p>
-              <p>Example record: 2 rooms, 6th floor, ul. Kazimierza Wielkiego 5C, Poznań; price and area as shown.</p>
-            </aside>
-          </section>
+          </div>
+
+          <div style="margin-top: 0.4em">
+            <ul class="deck-list-plain deck-list-compact">
+              <li class="fragment" data-fragment-index="1">
+                <strong>1 / 14</strong> — feature open/close + <code>gml:id</code> (stable id in the file).
+              </li>
+              <li class="fragment" data-fragment-index="2">
+                <strong>2–6</strong> — scalar fields; area carries <code>uom="m2"</code>.
+              </li>
+              <li class="fragment" data-fragment-index="3">
+                <strong>7–13</strong> — nested address block (<code>adresBudynkuZLokalem</code> → <code>RCN_Adres</code>
+                → fields).
+              </li>
+            </ul>
+          </div>
+
+          <p class="deck-footer">Data Cleaning &amp; Preparation</p>
+
+          <aside class="notes">
+            <p>Source: real Poznań RCN export (representative snippet). <code>gml:id</code> encodes registry context and
+              a unique key — treat as opaque unless you parse the convention.</p>
+            <p>Whitespace between tags is only for humans; parsers build the same tree without relying on indentation.
+            </p>
+            <p>Example record: 2 rooms, 6th floor, ul. Kazimierza Wielkiego 5C, Poznań; price and area as shown.</p>
+          </aside>
+        </section>
+      </section>
+
+      <!-- ═══ Chapter 5: Namespaces ═══ -->
+      <section>
+        <section class="deck-dark">
+          <div class="deck-section-num">05</div>
+          <span class="deck-label">Data Cleaning &amp; Preparation · PUEB REMA</span>
+          <h1>Namespaces</h1>
+          <p class="deck-section-blurb">
+            Prefixes (<code>gml:</code>, <code>rcn:</code>, …) point at standard vocabularies; you bind them once, then
+            query with full names in code.
+          </p>
+          <p class="deck-footer">Data Cleaning &amp; Preparation</p>
+          <aside class="notes">
+            <p>Sequence: (1) why collisions happen; (2) <code>xmlns:</code> on the root; (3) URIs in ElementTree / Clark
+              notation.</p>
+          </aside>
         </section>
 
-        <!-- ═══ Chapter 5: Namespaces ═══ -->
         <section>
-          <section class="deck-dark">
-            <div class="deck-section-num">05</div>
-            <span class="deck-label">Data Cleaning &amp; Preparation · PUEB REMA</span>
-            <h1>Namespaces</h1>
-            <p class="deck-section-blurb">
-              Prefixes (<code>gml:</code>, <code>rcn:</code>, …) point at standard vocabularies; you bind them once, then query with full names in code.
+          <span class="deck-label">Namespaces</span>
+          <h2>Why prefixes?</h2>
+          <p class="deck-subtitle">Many standards · same local names · different meaning</p>
+          <div class="deck-block">
+            <p>
+              GML, RCN, XSD, and others all define tags like <code>id</code> or <code>name</code>. A
+              <strong>namespace</strong> ties each
+              prefix to one vocabulary so <code>gml:id</code> (geometry id) and <code>rcn:id</code> (cadastre id) never
+              clash.
+              <code>prefix:localName</code> is a QName — the colon is only punctuation, not special syntax.
             </p>
-            <p class="deck-footer">Data Cleaning &amp; Preparation</p>
-            <aside class="notes">
-              <p>Sequence: (1) why collisions happen; (2) <code>xmlns:</code> on the root; (3) URIs in ElementTree / Clark notation.</p>
-            </aside>
-          </section>
+          </div>
+          <ul class="deck-list-plain deck-list-compact" style="margin-top: 0.45em">
+            <li><strong>gml:</strong> — OGC geometry / exchange shell (<code>FeatureCollection</code>,
+              <code>Polygon</code>, …).
+            </li>
+            <li><strong>rcn:</strong> — Polish RCN types (<code>RCN_Lokal</code>, <code>RCN_Transakcja</code>, …).</li>
+            <li><strong>xsi:</strong> — schema instance: <code>xsi:nil</code>, <code>schemaLocation</code>, …</li>
+          </ul>
+          <p class="deck-footer">Data Cleaning &amp; Preparation</p>
+          <aside class="notes">
+            <p>Analogy: <code>gml.id</code> vs <code>rcn.id</code> in Python — same local name, different module.</p>
+            <p>Official exports declare every prefix they use on the root element.</p>
+          </aside>
+        </section>
 
-          <section>
-            <span class="deck-label">Namespaces</span>
-            <h2>Why prefixes?</h2>
-            <p class="deck-subtitle">Many standards · same local names · different meaning</p>
-            <div class="deck-block">
-              <p>
-                GML, RCN, XSD, and others all define tags like <code>id</code> or <code>name</code>. A <strong>namespace</strong> ties each
-                prefix to one vocabulary so <code>gml:id</code> (geometry id) and <code>rcn:id</code> (cadastre id) never clash.
-                <code>prefix:localName</code> is a QName — the colon is only punctuation, not special syntax.
-              </p>
-            </div>
-            <ul class="deck-list-plain deck-list-compact" style="margin-top: 0.45em">
-              <li><strong>gml:</strong> — OGC geometry / exchange shell (<code>FeatureCollection</code>, <code>Polygon</code>, …).</li>
-              <li><strong>rcn:</strong> — Polish RCN types (<code>RCN_Lokal</code>, <code>RCN_Transakcja</code>, …).</li>
-              <li><strong>xsi:</strong> — schema instance: <code>xsi:nil</code>, <code>schemaLocation</code>, …</li>
-            </ul>
-            <p class="deck-footer">Data Cleaning &amp; Preparation</p>
-            <aside class="notes">
-              <p>Analogy: <code>gml.id</code> vs <code>rcn.id</code> in Python — same local name, different module.</p>
-              <p>Official exports declare every prefix they use on the root element.</p>
-            </aside>
-          </section>
-
-          <section>
-            <span class="deck-label">Namespaces</span>
-            <h2><code>xmlns:</code> on the root</h2>
-            <p class="deck-subtitle">Each line binds a prefix to a URI — a stable vocabulary id</p>
-            <div class="deck-split">
-              <div class="deck-code-panel">
-                <pre class="deck-pre "><code
+        <section>
+          <span class="deck-label">Namespaces</span>
+          <h2><code>xmlns:</code> on the root</h2>
+          <p class="deck-subtitle">Each line binds a prefix to a URI — a stable vocabulary id</p>
+          <div class="deck-split">
+            <div class="deck-code-panel">
+              <pre class="deck-pre "><code
                   class="language-xml"
                   data-trim
                   data-line-numbers="2-8"
@@ -577,34 +663,40 @@ FeatureCollection
   xmlns:gco="http://www.isotc211.org/2005/gco"
   xmlns:gts="http://www.isotc211.org/2005/gts">
 </script></code></pre>
-              </div>
-              <ul class="deck-list-plain deck-list-compact">
-                <li><code>gml</code> / <code>rcn</code> / <code>xsi</code> — main geometry, RCN features, schema hints (see previous slide).</li>
-                <li><code>xlink:</code> — <code>xlink:href</code> points at another feature&apos;s <code>gml:id</code>.</li>
-                <li><code>gmd</code> / <code>gco</code> / <code>gts</code> — ISO metadata / time; often declared; fewer direct paths in exercises.</li>
-              </ul>
             </div>
-            <p class="deck-caption">
-              Declared once on <code>FeatureCollection</code> — like imports for the whole document.
+            <ul class="deck-list-plain deck-list-compact">
+              <li><code>gml</code> / <code>rcn</code> / <code>xsi</code> — main geometry, RCN features, schema hints
+                (see previous slide).</li>
+              <li><code>xlink:</code> — <code>xlink:href</code> points at another feature&apos;s <code>gml:id</code>.
+              </li>
+              <li><code>gmd</code> / <code>gco</code> / <code>gts</code> — ISO metadata / time; often declared; fewer
+                direct paths in exercises.</li>
+            </ul>
+          </div>
+          <p class="deck-caption">
+            Declared once on <code>FeatureCollection</code> — like imports for the whole document.
+          </p>
+          <p class="deck-footer">Data Cleaning &amp; Preparation</p>
+          <aside class="notes">
+            <p><strong>gml:</strong> GML 3.2. <strong>rcn:</strong> GUGiK RCN schema. <strong>xsi:</strong> nulls and
+              <code>schemaLocation</code>.
             </p>
-            <p class="deck-footer">Data Cleaning &amp; Preparation</p>
-            <aside class="notes">
-              <p><strong>gml:</strong> GML 3.2. <strong>rcn:</strong> GUGiK RCN schema. <strong>xsi:</strong> nulls and <code>schemaLocation</code>.</p>
-              <p>Copy exact strings from the file into your <code>ns</code> map — typos break lookups.</p>
-            </aside>
-          </section>
+            <p>Copy exact strings from the file into your <code>ns</code> map — typos break lookups.</p>
+          </aside>
+        </section>
 
-          <section>
-            <span class="deck-label">Namespaces</span>
-            <h2>URIs and ElementTree</h2>
-            <p class="deck-subtitle">Identifiers — not necessarily pages to open in a browser</p>
-            <div class="deck-block">
-              <p>
-                <code>http://…</code> and <code>urn:…</code> strings are <strong>globally unique vocabulary names</strong>. Parsing does not require downloading them.
-              </p>
-            </div>
-            <div class="deck-code-panel" style="margin-top: 0.45em">
-              <pre class="deck-pre "><code class="language-python" data-trim>
+        <section>
+          <span class="deck-label">Namespaces</span>
+          <h2>URIs and ElementTree</h2>
+          <p class="deck-subtitle">Identifiers — not necessarily pages to open in a browser</p>
+          <div class="deck-block">
+            <p>
+              <code>http://…</code> and <code>urn:…</code> strings are <strong>globally unique vocabulary
+                names</strong>. Parsing does not require downloading them.
+            </p>
+          </div>
+          <div class="deck-code-panel" style="margin-top: 0.45em">
+            <pre class="deck-pre "><code class="language-python" data-trim>
 ns = {
     'gml':   'http://www.opengis.net/gml/3.2',
     'rcn':   'urn:gugik:specyfikacje:gmlas:rejestrcennieruchomosci:1.0',
@@ -612,100 +704,126 @@ ns = {
 }
 tree.findall('gml:featureMember/rcn:RCN_Lokal', ns)
 </code></pre>
-            </div>
-            <p class="deck-caption">
-              Elements may appear as <code>{http://www.opengis.net/gml/3.2}Polygon</code> — Clark notation — in errors and <code>repr</code>.
+          </div>
+          <p class="deck-caption">
+            Elements may appear as <code>{http://www.opengis.net/gml/3.2}Polygon</code> — Clark notation — in errors and
+            <code>repr</code>.
+          </p>
+          <p class="deck-footer">Data Cleaning &amp; Preparation</p>
+          <aside class="notes">
+            <p>Do not rely on the HTTP URL returning documentation; uniqueness is what matters.</p>
+            <p>ElementTree resolves prefixed paths using the <code>ns</code> mapping for <code>find</code> /
+              <code>findall</code>.
             </p>
-            <p class="deck-footer">Data Cleaning &amp; Preparation</p>
-            <aside class="notes">
-              <p>Do not rely on the HTTP URL returning documentation; uniqueness is what matters.</p>
-              <p>ElementTree resolves prefixed paths using the <code>ns</code> mapping for <code>find</code> / <code>findall</code>.</p>
-              <p>Mismatched URIs → empty results or confusing <code>{uri}tag</code> in exceptions — paste from <code>xmlns:</code> lines.</p>
-            </aside>
-          </section>
+            <p>Mismatched URIs → empty results or confusing <code>{uri}tag</code> in exceptions — paste from
+              <code>xmlns:</code> lines.
+            </p>
+          </aside>
+        </section>
+      </section>
+
+      <!-- ═══ Chapter 6: RCN — business structure of the .gml ═══ -->
+      <section>
+        <section class="deck-dark">
+          <div class="deck-section-num">06</div>
+          <span class="deck-label">Data Cleaning &amp; Preparation · PUEB REMA</span>
+          <h1>RCN in the file</h1>
+          <p class="deck-section-blurb">
+            What the Poznań <code>.gml</code> represents in business terms: sales, properties, parcels, buildings,
+            flats, and deeds — as linked records, not one nested story.
+          </p>
+          <p class="deck-footer">Data Cleaning &amp; Preparation</p>
+          <aside class="notes">
+            <p>This section is domain, not syntax: what each feature type <em>means</em>, then how IDs tie them
+              together. The notebook will use the same vocabulary.</p>
+          </aside>
         </section>
 
-        <!-- ═══ Chapter 6: RCN — business structure of the .gml ═══ -->
         <section>
-          <section class="deck-dark">
-            <div class="deck-section-num">06</div>
-            <span class="deck-label">Data Cleaning &amp; Preparation · PUEB REMA</span>
-            <h1>RCN in the file</h1>
-            <p class="deck-section-blurb">
-              What the Poznań <code>.gml</code> represents in business terms: sales, properties, parcels, buildings, flats, and deeds — as linked records, not one nested story.
+          <span class="deck-label">RCN in the file</span>
+          <h2>What is in the export?</h2>
+          <p class="deck-subtitle">Rejestr Cen Nieruchomości — price and transaction facts</p>
+          <div class="deck-block">
+            <p>
+              The file is a long sequence of <code>gml:featureMember</code> blocks. Each block is <strong>one business
+                object</strong>
+              (one transaction, one parcel, one apartment, …). The same real-world deal is split across several such
+              objects,
+              connected by identifiers — not by putting everything inside one big XML subtree.
             </p>
-            <p class="deck-footer">Data Cleaning &amp; Preparation</p>
-            <aside class="notes">
-              <p>This section is domain, not syntax: what each feature type <em>means</em>, then how IDs tie them together. The notebook will use the same vocabulary.</p>
-            </aside>
-          </section>
+          </div>
+          <ul class="deck-list-plain deck-list-compact" style="margin-top: 0.45em">
+            <li>You will filter by type (<code>RCN_Transakcja</code>, <code>RCN_Lokal</code>, …) and follow links to
+              assemble a full case.</li>
+            <li>Geometry and address detail live on parcel / building / unit features; the transaction row carries price
+              and pointers.</li>
+          </ul>
+          <p class="deck-footer">Data Cleaning &amp; Preparation</p>
+          <aside class="notes">
+            <p>Official GUGiK export from WEGA: one file can list millions of <code>featureMember</code> rows across
+              years — always stream or chunk in Python.</p>
+          </aside>
+        </section>
 
-          <section>
-            <span class="deck-label">RCN in the file</span>
-            <h2>What is in the export?</h2>
-            <p class="deck-subtitle">Rejestr Cen Nieruchomości — price and transaction facts</p>
-            <div class="deck-block">
-              <p>
-                The file is a long sequence of <code>gml:featureMember</code> blocks. Each block is <strong>one business object</strong>
-                (one transaction, one parcel, one apartment, …). The same real-world deal is split across several such objects,
-                connected by identifiers — not by putting everything inside one big XML subtree.
-              </p>
-            </div>
-            <ul class="deck-list-plain deck-list-compact" style="margin-top: 0.45em">
-              <li>You will filter by type (<code>RCN_Transakcja</code>, <code>RCN_Lokal</code>, …) and follow links to assemble a full case.</li>
-              <li>Geometry and address detail live on parcel / building / unit features; the transaction row carries price and pointers.</li>
-            </ul>
-            <p class="deck-footer">Data Cleaning &amp; Preparation</p>
-            <aside class="notes">
-              <p>Official GUGiK export from WEGA: one file can list millions of <code>featureMember</code> rows across years — always stream or chunk in Python.</p>
-            </aside>
-          </section>
+        <section>
+          <span class="deck-label">RCN in the file</span>
+          <h2>Six feature types (domain)</h2>
+          <p class="deck-subtitle">Polish tag names — plain-language role</p>
+          <ul class="deck-list-plain deck-list-compact">
+            <li><strong>RCN_Transakcja</strong> — one <strong>reported deal</strong>: transaction price, type (e.g. sale
+              vs other), links to the legal deed and to the property aggregate.</li>
+            <li><strong>RCN_Nieruchomosc</strong> — the <strong>economic property</strong> sold as a bundle (may combine
+              plot, building, unit; totals and roll-up attributes).</li>
+            <li><strong>RCN_Dzialka</strong> — a <strong>cadastral plot</strong> (land parcel): identifiers, land use,
+              polygon geometry.</li>
+            <li><strong>RCN_Budynek</strong> — a <strong>building</strong> on a plot: footprint geometry,
+              type/classification, address hooks.</li>
+            <li><strong>RCN_Lokal</strong> — a <strong>dwelling unit</strong> (flat): rooms, floor, usable area, unit
+              price — what you use for typical apartment analytics.</li>
+            <li><strong>RCN_Dokument</strong> — the <strong>notarial deed</strong> (number, date, notary office) that is
+              the legal basis of the transaction.</li>
+          </ul>
+          <p class="deck-footer">Data Cleaning &amp; Preparation</p>
+          <aside class="notes">
+            <p>Field-level dictionaries: GUGiK / INSPIRE application schema for RCN — use for exact code lists (e.g.
+              transaction type, PKOB building class).</p>
+            <p><strong>Nieruchomosc</strong> vs <strong>Lokal</strong>: the first is the “whole property” record for the
+              deal; the second is the apartment-specific slice when the object is a unit.</p>
+          </aside>
+        </section>
 
-          <section>
-            <span class="deck-label">RCN in the file</span>
-            <h2>Six feature types (domain)</h2>
-            <p class="deck-subtitle">Polish tag names — plain-language role</p>
-            <ul class="deck-list-plain deck-list-compact">
-              <li><strong>RCN_Transakcja</strong> — one <strong>reported deal</strong>: transaction price, type (e.g. sale vs other), links to the legal deed and to the property aggregate.</li>
-              <li><strong>RCN_Nieruchomosc</strong> — the <strong>economic property</strong> sold as a bundle (may combine plot, building, unit; totals and roll-up attributes).</li>
-              <li><strong>RCN_Dzialka</strong> — a <strong>cadastral plot</strong> (land parcel): identifiers, land use, polygon geometry.</li>
-              <li><strong>RCN_Budynek</strong> — a <strong>building</strong> on a plot: footprint geometry, type/classification, address hooks.</li>
-              <li><strong>RCN_Lokal</strong> — a <strong>dwelling unit</strong> (flat): rooms, floor, usable area, unit price — what you use for typical apartment analytics.</li>
-              <li><strong>RCN_Dokument</strong> — the <strong>notarial deed</strong> (number, date, notary office) that is the legal basis of the transaction.</li>
-            </ul>
-            <p class="deck-footer">Data Cleaning &amp; Preparation</p>
-            <aside class="notes">
-              <p>Field-level dictionaries: GUGiK / INSPIRE application schema for RCN — use for exact code lists (e.g. transaction type, PKOB building class).</p>
-              <p><strong>Nieruchomosc</strong> vs <strong>Lokal</strong>: the first is the “whole property” record for the deal; the second is the apartment-specific slice when the object is a unit.</p>
-            </aside>
-          </section>
-
-          <section>
-            <span class="deck-label">RCN in the file</span>
-            <h2>How records tie together</h2>
-            <p class="deck-subtitle">A graph of IDs — not one nested XML document per deal</p>
-            <div class="deck-block">
-              <p>
-                Each feature has a <code>gml:id</code>. Elsewhere, <code>xlink:href</code> attributes store <strong>references</strong> to another feature&apos;s id
-                (deed, property bundle, parcel, …). So the business view is: <strong>many rows + foreign-key-style links</strong>, same idea as joins in a database.
-              </p>
-            </div>
-            <p class="deck-caption">
-              Typical path to “full picture”: <code>Transakcja</code> → <code>nieruchomosc</code> href → <code>RCN_Nieruchomosc</code> → hrefs to <code>Dzialka</code> / <code>Budynek</code> / <code>Lokal</code>; <code>podstawaPrawna</code> → <code>Dokument</code>.
+        <section>
+          <span class="deck-label">RCN in the file</span>
+          <h2>How records tie together</h2>
+          <p class="deck-subtitle">A graph of IDs — not one nested XML document per deal</p>
+          <div class="deck-block">
+            <p>
+              Each feature has a <code>gml:id</code>. Elsewhere, <code>xlink:href</code> attributes store
+              <strong>references</strong> to another feature&apos;s id
+              (deed, property bundle, parcel, …). So the business view is: <strong>many rows + foreign-key-style
+                links</strong>, same idea as joins in a database.
             </p>
-            <p class="deck-footer">Data Cleaning &amp; Preparation</p>
-            <aside class="notes">
-              <p>Why XML still looks flat: GML exchange models repeat one feature type per <code>featureMember</code>; cross-links avoid duplicating heavy geometry in every transaction row.</p>
-              <p>XPath / ElementTree: resolve href string equality against <code>gml:id</code> on the target element — teach as “lookup by primary key.”</p>
-            </aside>
-          </section>
+          </div>
+          <p class="deck-caption">
+            Typical path to “full picture”: <code>Transakcja</code> → <code>nieruchomosc</code> href →
+            <code>RCN_Nieruchomosc</code> → hrefs to <code>Dzialka</code> / <code>Budynek</code> / <code>Lokal</code>;
+            <code>podstawaPrawna</code> → <code>Dokument</code>.
+          </p>
+          <p class="deck-footer">Data Cleaning &amp; Preparation</p>
+          <aside class="notes">
+            <p>Why XML still looks flat: GML exchange models repeat one feature type per <code>featureMember</code>;
+              cross-links avoid duplicating heavy geometry in every transaction row.</p>
+            <p>XPath / ElementTree: resolve href string equality against <code>gml:id</code> on the target element —
+              teach as “lookup by primary key.”</p>
+          </aside>
+        </section>
 
-          <section>
-            <span class="deck-label">RCN in the file</span>
-            <h2>One transaction in XML</h2>
-            <p class="deck-subtitle">Price on the row · rest via <code>xlink:href</code></p>
-            <div class="deck-code-panel">
-              <pre class="deck-pre "><code
+        <section>
+          <span class="deck-label">RCN in the file</span>
+          <h2>One transaction in XML</h2>
+          <p class="deck-subtitle">Price on the row · rest via <code>xlink:href</code></p>
+          <div class="deck-code-panel">
+            <pre class="deck-pre "><code
                 class="language-xml"
                 data-trim
                 data-line-numbers="1,9|2|3-5|6|7"
@@ -720,119 +838,140 @@ tree.findall('gml:featureMember/rcn:RCN_Lokal', ns)
   </rcn:RCN_Transakcja>
 </gml:featureMember>
 </script></code></pre>
-            </div>
-            <p class="deck-caption">
-              Wrapper + id · scalars (incl. gross price) · link to deed · link to property aggregate — then follow those ids elsewhere in the file.
+          </div>
+          <p class="deck-caption">
+            Wrapper + id · scalars (incl. gross price) · link to deed · link to property aggregate — then follow those
+            ids elsewhere in the file.
+          </p>
+          <p class="deck-footer">Data Cleaning &amp; Preparation</p>
+          <aside class="notes">
+            <p><strong>Lines 1–9</strong> — <code>featureMember</code> wraps one top-level feature.</p>
+            <p><strong>Line 2</strong> — <code>gml:id</code> is the stable key other rows reference.</p>
+            <p><strong>Lines 3–5</strong> — business fields: sequence id, transaction kind, gross price in PLN (example
+              ~6.37M).</p>
+            <p><strong>Line 6</strong> — <code>podstawaPrawna</code> → <code>RCN_Dokument</code> for the notarial act.
             </p>
-            <p class="deck-footer">Data Cleaning &amp; Preparation</p>
-            <aside class="notes">
-              <p><strong>Lines 1–9</strong> — <code>featureMember</code> wraps one top-level feature.</p>
-              <p><strong>Line 2</strong> — <code>gml:id</code> is the stable key other rows reference.</p>
-              <p><strong>Lines 3–5</strong> — business fields: sequence id, transaction kind, gross price in PLN (example ~6.37M).</p>
-              <p><strong>Line 6</strong> — <code>podstawaPrawna</code> → <code>RCN_Dokument</code> for the notarial act.</p>
-              <p><strong>Line 7</strong> — <code>nieruchomosc</code> → <code>RCN_Nieruchomosc</code>, then drill to plots/buildings/units.</p>
-            </aside>
-          </section>
+            <p><strong>Line 7</strong> — <code>nieruchomosc</code> → <code>RCN_Nieruchomosc</code>, then drill to
+              plots/buildings/units.</p>
+          </aside>
         </section>
+      </section>
 
-        <!-- ═══ Data prep theory ═══ -->
-        <section>
-          <section class="deck-dark">
-            <div class="deck-section-num">07</div>
-            <span class="deck-label">Data Cleaning &amp; Preparation · PUEB REMA</span>
-            <h1>Why Data Preparation Matters</h1>
-            <p class="deck-section-blurb">
-              The foundation of analysis and the consequences of a naive data loading approach.
-            </p>
-            <p class="deck-footer">Data Cleaning &amp; Preparation</p>
-            <aside class="notes">
-              <p>Agenda for this section: Why correct data loading is the foundation of analysis (Garbage In, Garbage Out) and the risks of naive loading.</p>
-            </aside>
-          </section>
-
-          <section>
-            <span class="deck-label">Why Data Preparation Matters</span>
-            <h2>The Foundation of Analysis</h2>
-            <p class="deck-subtitle">Consequences of a naive approach</p>
-            <div class="deck-block">
-              <p>
-                Proper data loading is more than just reading a file. It dictates the efficiency, accuracy, and feasibility of all subsequent <strong>Data Cleaning</strong> steps.
-              </p>
-            </div>
-            <ul class="deck-list-plain deck-list-compact" style="margin-top: 0.45em">
-              <li><strong>Memory Overload (RAM):</strong> Loading an entire multi-gigabyte GML file into memory at once can crash your environment.</li>
-              <li><strong>Loss of Structure:</strong> Flattening nested XML elements incorrectly can sever crucial relationships (e.g., losing the address linked to a specific transaction).</li>
-              <li><strong>Encoding Errors:</strong> Misinterpreting text encodings ruins string matching later (e.g., grouping by street names with broken Polish characters).</li>
-            </ul>
-            <p class="deck-footer">Data Cleaning &amp; Preparation</p>
-            <aside class="notes">
-              <p>Emphasize the "Garbage In, Garbage Out" concept. If we load the data wrong, our cleaning scripts will fail or produce false insights.</p>
-              <p>The GML file we use is massive. If we try to read it like a simple CSV, the Python kernel will likely die.</p>
-            </aside>
-          </section>
+      <!-- ═══ Data prep theory ═══ -->
+      <section>
+        <section class="deck-dark">
+          <div class="deck-section-num">07</div>
+          <span class="deck-label">Data Cleaning &amp; Preparation · PUEB REMA</span>
+          <h1>Why Data Preparation Matters</h1>
+          <p class="deck-section-blurb">
+            The foundation of analysis and the consequences of a naive data loading approach.
+          </p>
+          <p class="deck-footer">Data Cleaning &amp; Preparation</p>
+          <aside class="notes">
+            <p>Agenda for this section: Why correct data loading is the foundation of analysis (Garbage In, Garbage Out)
+              and the risks of naive loading.</p>
+          </aside>
         </section>
-
 
         <section>
-          <section class="deck-dark">
-            <div class="deck-section-num">08</div>
-            <span class="deck-label">Data Cleaning &amp; Preparation · PUEB REMA</span>
-            <h1>Best Practices</h1>
-            <p class="deck-section-blurb">
-              Key principles and a checklist to follow before writing your parsing code.
+          <span class="deck-label">Why Data Preparation Matters</span>
+          <h2>The Foundation of Analysis</h2>
+          <p class="deck-subtitle">Consequences of a naive approach</p>
+          <div class="deck-block">
+            <p>
+              Proper data loading is more than just reading a file. It dictates the efficiency, accuracy, and
+              feasibility of all subsequent <strong>Data Cleaning</strong> steps.
             </p>
-            <p class="deck-footer">Data Cleaning &amp; Preparation</p>
-            <aside class="notes">
-              <p>Agenda for this section: Three golden rules: Selective Loading, Namespace Management, and Input Type Awareness.</p>
-            </aside>
-          </section>
+          </div>
+          <ul class="deck-list-plain deck-list-compact" style="margin-top: 0.45em">
+            <li><strong>Memory Overload (RAM):</strong> Loading an entire multi-gigabyte GML file into memory at once
+              can crash your environment.</li>
+            <li><strong>Loss of Structure:</strong> Flattening nested XML elements incorrectly can sever crucial
+              relationships (e.g., losing the address linked to a specific transaction).</li>
+            <li><strong>Encoding Errors:</strong> Misinterpreting text encodings ruins string matching later (e.g.,
+              grouping by street names with broken Polish characters).</li>
+          </ul>
+          <p class="deck-footer">Data Cleaning &amp; Preparation</p>
+          <aside class="notes">
+            <p>Emphasize the "Garbage In, Garbage Out" concept. If we load the data wrong, our cleaning scripts will
+              fail or produce false insights.</p>
+            <p>The GML file we use is massive. If we try to read it like a simple CSV, the Python kernel will likely
+              die.</p>
+          </aside>
+        </section>
+      </section>
 
-          <section>
-            <span class="deck-label">Best Practices</span>
-            <h2>What to pay attention to</h2>
-            <p class="deck-subtitle">Checklist for loading spatial/XML data</p>
-            <ul class="deck-list-plain deck-list-compact" style="margin-top: 0.25em">
-              <li>
-                <strong>1. Selective Loading:</strong> Don't load everything. Filter data at the parsing stage. If you only need apartments, extract only <code>RCN_Lokal</code> nodes.
-              </li>
-              <li style="margin-top: 0.4em">
-                <strong>2. Namespace Management:</strong> XML files like GML rely heavily on prefixes (<code>rcn:</code>, <code>gml:</code>). Always define a namespace dictionary in your code, or your searches will return empty results.
-              </li>
-              <li style="margin-top: 0.4em">
-                <strong>3. Input Type Awareness:</strong> Standard XML parsers treat absolutely everything as text. Prices and areas will be imported as strings. You must plan for type casting (e.g., <code>to_numeric</code>) before analyzing.
-              </li>
-            </ul>
-            <p class="deck-footer">Data Cleaning &amp; Preparation</p>
-            <aside class="notes">
-              <p><strong>Selective loading</strong> is our primary defense against RAM limits. We ignore plots and buildings if our topic is premises.</p>
-              <p><strong>Namespaces</strong> are the #1 reason students get errors when writing XPath queries. If you don't declare the URI, the parser is blind to the tags.</p>
-              <p><strong>Types:</strong> Remind them that calculating a median price on text data will crash the script. Type casting bridges Loading and Cleaning.</p>
-            </aside>
-          </section>
+
+      <section>
+        <section class="deck-dark">
+          <div class="deck-section-num">08</div>
+          <span class="deck-label">Data Cleaning &amp; Preparation · PUEB REMA</span>
+          <h1>Best Practices</h1>
+          <p class="deck-section-blurb">
+            Key principles and a checklist to follow before writing your parsing code.
+          </p>
+          <p class="deck-footer">Data Cleaning &amp; Preparation</p>
+          <aside class="notes">
+            <p>Agenda for this section: Three golden rules: Selective Loading, Namespace Management, and Input Type
+              Awareness.</p>
+          </aside>
         </section>
 
-        <!-- ═══ Data Prep Example ═══ -->
-         <section>
-          <section class="deck-dark">
-            <div class="deck-section-num">09</div>
-            <span class="deck-label">Data Cleaning &amp; Preparation · PUEB REMA</span>
-            <h1>Live Demo: XML to DataFrame</h1>
-            <p class="deck-section-blurb">
-              Let's look at the example how to extract notarial deeds (<code>RCN_Dokument</code>) from the 2026 dataset.
-            </p>
-            <p class="deck-footer">Data Cleaning &amp; Preparation</p>
-            <aside class="notes">
-              <p>Transition: "Now that we know why selective loading and namespaces matter, let's see how it looks in Python."</p>
-              <p>We are parsing deeds (Dokument) as an example. Students will parse premises (Lokal) in their tasks.</p>
-            </aside>
-          </section>
+        <section>
+          <span class="deck-label">Best Practices</span>
+          <h2>What to pay attention to</h2>
+          <p class="deck-subtitle">Checklist for loading spatial/XML data</p>
+          <ul class="deck-list-plain deck-list-compact" style="margin-top: 0.25em">
+            <li>
+              <strong>1. Selective Loading:</strong> Don't load everything. Filter data at the parsing stage. If you
+              only need apartments, extract only <code>RCN_Lokal</code> nodes.
+            </li>
+            <li style="margin-top: 0.4em">
+              <strong>2. Namespace Management:</strong> XML files like GML rely heavily on prefixes (<code>rcn:</code>,
+              <code>gml:</code>). Always define a namespace dictionary in your code, or your searches will return empty
+              results.
+            </li>
+            <li style="margin-top: 0.4em">
+              <strong>3. Input Type Awareness:</strong> Standard XML parsers treat absolutely everything as text. Prices
+              and areas will be imported as strings. You must plan for type casting (e.g., <code>to_numeric</code>)
+              before analyzing.
+            </li>
+          </ul>
+          <p class="deck-footer">Data Cleaning &amp; Preparation</p>
+          <aside class="notes">
+            <p><strong>Selective loading</strong> is our primary defense against RAM limits. We ignore plots and
+              buildings if our topic is premises.</p>
+            <p><strong>Namespaces</strong> are the #1 reason students get errors when writing XPath queries. If you
+              don't declare the URI, the parser is blind to the tags.</p>
+            <p><strong>Types:</strong> Remind them that calculating a median price on text data will crash the script.
+              Type casting bridges Loading and Cleaning.</p>
+          </aside>
+        </section>
+      </section>
 
-          <section>
-            <span class="deck-label">Live Demo</span>
-            <h2>1. Loading &amp; Filtering</h2>
-            <p class="deck-subtitle">Parsing the file and targeting specific nodes</p>
-            <div class="deck-code-panel">
-              <pre class="deck-pre"><code class="language-python" data-trim data-line-numbers="1-3|4-6|7-12|13">
+      <!-- ═══ Data Prep Example ═══ -->
+      <section>
+        <section class="deck-dark">
+          <div class="deck-section-num">09</div>
+          <span class="deck-label">Data Cleaning &amp; Preparation · PUEB REMA</span>
+          <h1>Live Demo: XML to DataFrame</h1>
+          <p class="deck-section-blurb">
+            Let's look at the example how to extract notarial deeds (<code>RCN_Dokument</code>) from the 2026 dataset.
+          </p>
+          <p class="deck-footer">Data Cleaning &amp; Preparation</p>
+          <aside class="notes">
+            <p>Transition: "Now that we know why selective loading and namespaces matter, let's see how it looks in
+              Python."</p>
+            <p>We are parsing deeds (Dokument) as an example. Students will parse premises (Lokal) in their tasks.</p>
+          </aside>
+        </section>
+
+        <section>
+          <span class="deck-label">Live Demo</span>
+          <h2>1. Loading &amp; Filtering</h2>
+          <p class="deck-subtitle">Parsing the file and targeting specific nodes</p>
+          <div class="deck-code-panel">
+            <pre class="deck-pre"><code class="language-python" data-trim data-line-numbers="1-3|4-6|7-12|13">
               import pandas as pd
               import xml.etree.ElementTree as ET
 
@@ -846,24 +985,26 @@ tree.findall('gml:featureMember/rcn:RCN_Lokal', ns)
 
               document_nodes = root.findall('.//rcn:RCN_Dokument', ns)
               </code></pre>
-            </div>
-            <ul class="deck-list-plain deck-list-compact" style="margin-top: 0.45em">
-              <li><strong>ET.parse:</strong> Reads the entire XML document into a tree structure.</li>
-              <li><strong>Namespaces (ns):</strong> We bind the prefixes found in the file to their full URIs.</li>
-              <li><strong>.findall():</strong> The essence of <em>Selective Loading</em>. We grab only the notarial deed nodes, ignoring all plots and buildings.</li>
-            </ul>
-            <p class="deck-footer">Data Cleaning &amp; Preparation</p>
-            <aside class="notes">
-              <p>Remind them: If we forget the 'ns' dictionary, .findall() will return an empty list because it won't understand what 'rcn:' means.</p>
-            </aside>
-          </section>
+          </div>
+          <ul class="deck-list-plain deck-list-compact" style="margin-top: 0.45em">
+            <li><strong>ET.parse:</strong> Reads the entire XML document into a tree structure.</li>
+            <li><strong>Namespaces (ns):</strong> We bind the prefixes found in the file to their full URIs.</li>
+            <li><strong>.findall():</strong> The essence of <em>Selective Loading</em>. We grab only the notarial deed
+              nodes, ignoring all plots and buildings.</li>
+          </ul>
+          <p class="deck-footer">Data Cleaning &amp; Preparation</p>
+          <aside class="notes">
+            <p>Remind them: If we forget the 'ns' dictionary, .findall() will return an empty list because it won't
+              understand what 'rcn:' means.</p>
+          </aside>
+        </section>
 
-          <section>
-            <span class="deck-label">Live Demo</span>
-            <h2>2. Flattening the Data</h2>
-            <p class="deck-subtitle">Extracting elements into a flat list of dictionaries</p>
-            <div class="deck-code-panel deck-grow">
-              <pre class="deck-pre r-stretch"><code class="language-python" data-trim data-line-numbers="1-2|3|4-7|8-12|13">
+        <section>
+          <span class="deck-label">Live Demo</span>
+          <h2>2. Flattening the Data</h2>
+          <p class="deck-subtitle">Extracting elements into a flat list of dictionaries</p>
+          <div class="deck-code-panel deck-grow">
+            <pre class="deck-pre r-stretch"><code class="language-python" data-trim data-line-numbers="1-2|3|4-7|8-12|13">
               document_list = []
               for doc in document_nodes:
                   doc_dict = {}
@@ -877,24 +1018,27 @@ tree.findall('gml:featureMember/rcn:RCN_Lokal', ns)
                       
                   document_list.append(doc_dict)
               </code></pre>
-            </div>
-            <p class="deck-caption">
-              Without splitting by <code>}</code>, tags look like: <code>{urn:gugik:...}oznaczenieDokumentu</code>. We want clean column names.
-            </p>
-            <p class="deck-footer">Data Cleaning &amp; Preparation</p>
-            <aside class="notes">
-              <p>This is the core parsing loop. We iterate over the deeds, and then iterate over their children.</p>
-              <p>Point out the 'child.tag' split. This removes the Clark notation (the URI in curly braces) so our Pandas columns will have readable names.</p>
-              <p>Preview for their task: Remind them that here we only take 'child.text', but in their task, they might need to look for attributes (like xlink:href).</p>
-            </aside>
-          </section>
+          </div>
+          <p class="deck-caption">
+            Without splitting by <code>}</code>, tags look like: <code>{urn:gugik:...}oznaczenieDokumentu</code>. We
+            want clean column names.
+          </p>
+          <p class="deck-footer">Data Cleaning &amp; Preparation</p>
+          <aside class="notes">
+            <p>This is the core parsing loop. We iterate over the deeds, and then iterate over their children.</p>
+            <p>Point out the 'child.tag' split. This removes the Clark notation (the URI in curly braces) so our Pandas
+              columns will have readable names.</p>
+            <p>Preview for their task: Remind them that here we only take 'child.text', but in their task, they might
+              need to look for attributes (like xlink:href).</p>
+          </aside>
+        </section>
 
-          <section>
-            <span class="deck-label">Live Demo</span>
-            <h2>3. Building the DataFrame</h2>
-            <p class="deck-subtitle">Converting to Pandas and basic cleanup</p>
-            <div class="deck-code-panel">
-              <pre class="deck-pre"><code class="language-python" data-trim data-line-numbers="1|3-4|6-7|8">
+        <section>
+          <span class="deck-label">Live Demo</span>
+          <h2>3. Building the DataFrame</h2>
+          <p class="deck-subtitle">Converting to Pandas and basic cleanup</p>
+          <div class="deck-code-panel">
+            <pre class="deck-pre"><code class="language-python" data-trim data-line-numbers="1|3-4|6-7|8">
               df_documents = pd.DataFrame(document_list)
 
               # Drop 'ghost' columns that XML might have created as entirely empty
@@ -903,47 +1047,591 @@ tree.findall('gml:featureMember/rcn:RCN_Lokal', ns)
               print(df_documents.head(3))
               print(df_documents.dtypes)
               </code></pre>
-            </div>
-            <ul class="deck-list-plain deck-list-compact" style="margin-top: 0.45em">
-              <li><strong>pd.DataFrame:</strong> Instantly converts our list of dictionaries into a flat, tabular format.</li>
-              <li><strong>.dropna(how='all'):</strong> GML files often contain empty structural tags (like <code>&lt;gml:boundedBy /&gt;</code>). This command removes columns consisting of 100% NaN values.</li>
-              <li><strong>All strings:</strong> <code>.dtypes</code> will reveal that everything is currently an 'object' (text).</li>
-            </ul>
-            <p class="deck-footer">Data Cleaning &amp; Preparation</p>
-            <aside class="notes">
-              <p>The 'dropna' step is a fantastic quick win. It removes noise from the dataset immediately.</p>
-              <p>The output of .dtypes is the perfect bridge to the next section: everything is text! The Data Cleaning team will show how to cast these to numbers/dates.</p>
-            </aside>
-          </section>
+          </div>
+          <ul class="deck-list-plain deck-list-compact" style="margin-top: 0.45em">
+            <li><strong>pd.DataFrame:</strong> Instantly converts our list of dictionaries into a flat, tabular format.
+            </li>
+            <li><strong>.dropna(how='all'):</strong> GML files often contain empty structural tags (like
+              <code>&lt;gml:boundedBy /&gt;</code>). This command removes columns consisting of 100% NaN values.
+            </li>
+            <li><strong>All strings:</strong> <code>.dtypes</code> will reveal that everything is currently an 'object'
+              (text).</li>
+          </ul>
+          <p class="deck-footer">Data Cleaning &amp; Preparation</p>
+          <aside class="notes">
+            <p>The 'dropna' step is a fantastic quick win. It removes noise from the dataset immediately.</p>
+            <p>The output of .dtypes is the perfect bridge to the next section: everything is text! The Data Cleaning
+              team will show how to cast these to numbers/dates.</p>
+          </aside>
         </section>
+      </section>
 
-        <!-- ═══ Chapter 7: Now let's parse it (was Ch 8) ═══ -->
+      <!-- ═══ Chapter 7: Now let's parse it (was Ch 8) ═══ -->
+      <section class="deck-dark">
+        <div class="deck-section-num">10</div>
+        <span class="deck-label">Up next</span>
+        <h1>Now let's parse it</h1>
+        <p style="color: var(--deck-dark-muted); margin-top: 0.4em; font-size: 0.92em">
+          Open <code style="color: var(--deck-dark-fg)">gml_xml_tasks.ipynb</code> and work with<br />
+          <code style="color: var(--deck-dark-fg)">Baza_danych_RCN_Poznan_2021-2025.gml</code>
+        </p>
+        <p class="deck-footer">Data Cleaning &amp; Preparation</p>
+        <aside class="notes">
+          <p>Brief summary of what was covered:</p>
+          <ul>
+            <li>XML structure: elements, attributes, nesting — the three building blocks</li>
+            <li>Declaration, comments, empty tags — on the RCN excerpt; well-formedness — with document structure</li>
+            <li>Namespaces: 7 prefixes in the RCN file, the xmlns: declaration pattern, URIs as unique labels</li>
+            <li>RCN business structure: six feature types (transaction, property, plot, building, unit, deed) linked by
+              <code>gml:id</code> / <code>xlink:href</code>
+            </li>
+          </ul>
+          <p>Hand off to next section: loading and querying this file in Python.</p>
+          <p>Remind students: <code>Baza_danych_RCN_Poznan_2021-2025.gml</code> is very large — use iterparse() instead
+            of ElementTree.parse() to avoid loading everything into RAM. geopandas.read_file() can also read GML
+            directly and is the fastest path to a GeoDataFrame.</p>
+        </aside>
+      </section>
+
+
+      <!-- ═══ Chapter 11: Solutions — Data Cleaning & Imputation ═══ -->
+      <section>
+
+        <!-- Chapter intro -->
         <section class="deck-dark">
-          <div class="deck-section-num">10</div>
-          <span class="deck-label">Up next</span>
-          <h1>Now let's parse it</h1>
-          <p style="color: var(--deck-dark-muted); margin-top: 0.4em; font-size: 0.92em">
-            Open <code style="color: var(--deck-dark-fg)">gml_xml_tasks.ipynb</code> and work with<br />
-            <code style="color: var(--deck-dark-fg)">Baza_danych_RCN_Poznan_2021-2025.gml</code>
+          <div class="deck-section-num">11</div>
+          <span class="deck-label">Data Cleaning &amp; Preparation · PUEB REMA</span>
+          <h1>Solutions: Data Cleaning &amp; Imputation</h1>
+          <p class="deck-section-blurb">
+            Code walkthroughs for every exercise — five bug fixes included.
           </p>
           <p class="deck-footer">Data Cleaning &amp; Preparation</p>
           <aside class="notes">
-            <p>Brief summary of what was covered:</p>
+            <p>This section walks through the correct answers for the data-prep-assignements notebook.</p>
             <ul>
-              <li>XML structure: elements, attributes, nesting — the three building blocks</li>
-              <li>Declaration, comments, empty tags — on the RCN excerpt; well-formedness — with document structure</li>
-              <li>Namespaces: 7 prefixes in the RCN file, the xmlns: declaration pattern, URIs as unique labels</li>
-              <li>RCN business structure: six feature types (transaction, property, plot, building, unit, deed) linked by <code>gml:id</code> / <code>xlink:href</code></li>
+              <li>Data Cleaning: Tasks 1–4 (msno audit, type casting, category decoding, outlier detection)</li>
+              <li>Data Imputation: Tasks 1–5 (grouped median, PMM, stochastic regression, comparison, export)</li>
+              <li>Five bug exercises are embedded — each shown as a bug→fix animated pair on a red background</li>
             </ul>
-            <p>Hand off to next section: loading and querying this file in Python.</p>
-            <p>Remind students: <code>Baza_danych_RCN_Poznan_2021-2025.gml</code> is very large — use iterparse() instead of ElementTree.parse() to avoid loading everything into RAM. geopandas.read_file() can also read GML directly and is the fastest path to a GeoDataFrame.</p>
           </aside>
         </section>
-        
-        
-        
-      </div>
+
+        <!-- ─── Cleaning Task 1: msno audit ─── -->
+        <section>
+          <span class="deck-label">Data Cleaning · Task 1</span>
+          <h2>Audit missing values</h2>
+          <div class="deck-code-panel">
+            <pre class="deck-pre r-stretch"><code class="language-python" data-trim data-line-numbers="1-4|6-9|11-14">
+msno.bar(df_lokale, figsize=(12, 4), color='steelblue')
+plt.title('Non-null counts per column')
+plt.tight_layout()
+plt.show()
+
+msno.matrix(df_lokale, figsize=(12, 5))
+plt.title('Nullity matrix')
+plt.tight_layout()
+plt.show()
+
+msno.heatmap(df_lokale, figsize=(8, 6))
+plt.title('Missing-value correlation heatmap')
+plt.tight_layout()
+plt.show()
+              </code></pre>
+          </div>
+          <ul class="deck-list-plain deck-list-compact" style="margin-top: 0.45em">
+            <li class="fragment"><strong>bar</strong> — per-column fill rate at a glance</li>
+            <li class="fragment"><strong>matrix</strong> — row-level pattern; reveals whether entire rows are
+              block-missing together</li>
+            <li class="fragment"><strong>heatmap</strong> — correlated missingness: which columns go missing together
+            </li>
+          </ul>
+          <p class="deck-footer">Data Cleaning &amp; Preparation</p>
+          <aside class="notes">
+            <p>The three msno plots give complementary views of the same nullity pattern.</p>
+            <p>bar: headline numbers; matrix: structural patterns (e.g. only certain transaction types have VAT);
+              heatmap: co-occurring gaps (useful for deciding a single imputation strategy for correlated columns).</p>
+          </aside>
+        </section>
+
+        <!-- ─── Cleaning Task 2 / Bug 1 — slide 1: buggy int64 ─── -->
+        <section data-auto-animate data-auto-animate-id="bug1" data-background-color="#2a0d06">
+          <span class="deck-label">Data Cleaning · Task 2</span>
+          <span class="deck-label" style="margin-left: 1em; color: var(--deck-accent)">🐛 Bug 1</span>
+          <h2>Bug 1 — int64 cannot hold NaN</h2>
+          <div class="deck-code-panel">
+            <pre class="deck-pre r-stretch"><code class="language-python" data-trim data-line-numbers="5">
+for col, dtype in COLUMN_TYPES.items():
+    if dtype in ('float64', 'Int64'):
+        df[col] = pd.to_numeric(df[col], errors='coerce')
+        if dtype == 'Int64':
+            df[col] = df[col].astype('int64')  # ← BUG
+              </code></pre>
+          </div>
+          <p class="deck-caption" style="color: var(--deck-accent); margin-top: 0.3em">
+            Line 5: <code>'int64'</code> cannot hold NaN — crashes when <code>liczbaIzb</code> or
+            <code>nrKondygnacji</code> have missing values.
+          </p>
+          <p class="deck-footer">Data Cleaning &amp; Preparation</p>
+          <aside class="notes">
+            <p>Ask students: why does this crash? Let them spot that int64 has no NaN sentinel value.</p>
+          </aside>
+        </section>
+
+        <!-- ─── Bug 1 fix: Int64 ─── -->
+        <section data-auto-animate data-auto-animate-id="bug1" data-background-color="#2a0d06">
+          <span class="deck-label">Data Cleaning · Task 2</span>
+          <span class="deck-label" style="margin-left: 1em; color: var(--deck-accent)">✓ Fix 1</span>
+          <h2>Bug 1 — int64 cannot hold NaN</h2>
+          <div class="deck-code-panel">
+            <pre class="deck-pre r-stretch"><code class="language-python" data-trim data-line-numbers="5">
+for col, dtype in COLUMN_TYPES.items():
+    if dtype in ('float64', 'Int64'):
+        df[col] = pd.to_numeric(df[col], errors='coerce')
+        if dtype == 'Int64':
+            df[col] = df[col].astype('Int64')  # ← FIXED
+              </code></pre>
+          </div>
+          <ul class="deck-list-plain deck-list-compact" style="margin-top: 0.45em">
+            <li class="fragment">NumPy <code>int64</code> has no NaN representation — raises <code>ValueError</code>
+              when NaN is present</li>
+            <li class="fragment">Pandas nullable <code>Int64</code> (capital I) stores <code>&lt;NA&gt;</code> safely
+            </li>
+            <li class="fragment"><code>pd.to_numeric(errors='coerce')</code> first converts non-parsable strings to NaN
+              before casting</li>
+          </ul>
+          <p class="deck-footer">Data Cleaning &amp; Preparation</p>
+          <aside class="notes">
+            <p>Key distinction: NumPy integer types predate pandas nullable types. Any column that might have NaN should
+              use the pandas capitalised type.</p>
+          </aside>
+        </section>
+
+        <!-- ─── Cleaning Task 3: decode categories ─── -->
+        <section>
+          <span class="deck-label">Data Cleaning · Task 3</span>
+          <h2>Decode <code>funkcjaLokalu</code> codes</h2>
+          <div class="deck-code-panel">
+            <pre class="deck-pre r-stretch"><code class="language-python" data-trim data-line-numbers="1-7|9">
+FUNKCJA_LABELS = {
+    1: 'mieszkalna',
+    2: 'użytkowa',
+    3: 'mieszkalno-użytkowa',
+    4: 'rekreacji indywidualnej',
+    5: 'zbiorowego zamieszkania',
+    6: 'garażowa',
+    7: 'inne',
+} df['funkcjaLokalu_label'] = df['funkcjaLokalu'].map(FUNKCJA_LABELS).fillna('nieznana')
+              </code></pre>
+          </div>
+          <ul class="deck-list-plain deck-list-compact" style="margin-top: 0.45em">
+            <li class="fragment">Integer codes are not self-describing in reports or plots</li>
+            <li class="fragment"><code>.map()</code> with a dict is vectorised — no loops needed</li>
+            <li class="fragment"><code>.fillna('nieznana')</code> catches any code absent from the dict</li>
+          </ul>
+          <p class="deck-footer">Data Cleaning &amp; Preparation</p>
+          <aside class="notes">
+            <p>The label column is used downstream as a grouping key in imputation and as the y-axis in the countplot.
+              Always create a human-readable label early — it pays off in every later visualisation.</p>
+          </aside>
+        </section>
+
+        <!-- ─── Cleaning Task 4: outlier detection ─── -->
+        <section>
+          <span class="deck-label">Data Cleaning · Task 4</span>
+          <h2>Detect &amp; flag outliers</h2>
+          <div class="deck-code-panel">
+            <pre class="deck-pre r-stretch"><code class="language-python" data-trim data-line-numbers="1-4|6-7|9-12">
+def iqr_bounds(series, factor=3.0):
+    q1, q3 = series.quantile([0.25, 0.75])
+    iqr = q3 - q1
+    return q1 - factor * iqr, q3 + factor * iqr
+
+price_lo, price_hi = iqr_bounds(df['cenaLokaluBrutto'].dropna())
+area_lo,  area_hi  = iqr_bounds(df['powUzytkowaLokalu'].dropna())
+
+df['is_outlier'] = (
+    (df['cenaLokaluBrutto'] &lt; price_lo) | (df['cenaLokaluBrutto'] &gt; price_hi) |
+    (df['powUzytkowaLokalu'] &lt; area_lo)  | (df['powUzytkowaLokalu'] &gt; area_hi)
+)
+              </code></pre>
+          </div>
+          <ul class="deck-list-plain deck-list-compact" style="margin-top: 0.45em">
+            <li class="fragment">IQR ×3 is a lenient bound — flags only extreme outliers, not just unusual values</li>
+            <li class="fragment">Always compute bounds from raw data with <code>.dropna()</code>, not from a
+              visualisation-clipped series</li>
+            <li class="fragment">Boolean flag <code>is_outlier</code> preserves the rows for inspection rather than
+              silently dropping them</li>
+          </ul>
+          <p class="deck-footer">Data Cleaning &amp; Preparation</p>
+          <aside class="notes">
+            <p>factor=3.0 is deliberately loose. Factor 1.5 is the classic Tukey fence; 3.0 keeps more data. The key
+              pedagogical point is the dropna() — see Bug 2 on the next slide.</p>
+          </aside>
+        </section>
+
+        <!-- ─── Bug 2 — slide 1: clipped IQR ─── -->
+        <section data-auto-animate data-auto-animate-id="bug2" data-background-color="#2a0d06">
+          <span class="deck-label">Data Cleaning · Task 4</span>
+          <span class="deck-label" style="margin-left: 1em; color: var(--deck-accent)">🐛 Bug 2</span>
+          <h2>Bug 2 — IQR bounds on clipped data</h2>
+          <div class="deck-code-panel">
+            <pre class="deck-pre r-stretch"><code class="language-python" data-trim data-line-numbers="1-2">
+price_lo, price_hi = iqr_bounds(clip_series(df['cenaLokaluBrutto']))
+area_lo,  area_hi  = iqr_bounds(clip_series(df['powUzytkowaLokalu']))
+              </code></pre>
+          </div>
+          <p class="deck-caption" style="color: var(--deck-accent); margin-top: 0.3em">
+            Lines 1–2: <code>clip_series</code> compresses the range to the 1st–99th percentile — the resulting IQR is
+            much tighter than the true one.
+          </p>
+          <p class="deck-footer">Data Cleaning &amp; Preparation</p>
+          <aside class="notes">
+            <p>clip_series was defined for plotting — it clips at 1st and 99th percentile so the histogram looks nice.
+              But the compressed range gives a much smaller IQR, leading to much tighter outlier bounds, which then flag
+              way too many real observations.</p>
+          </aside>
+        </section>
+
+        <!-- ─── Bug 2 fix: raw data ─── -->
+        <section data-auto-animate data-auto-animate-id="bug2" data-background-color="#2a0d06">
+          <span class="deck-label">Data Cleaning · Task 4</span>
+          <span class="deck-label" style="margin-left: 1em; color: var(--deck-accent)">✓ Fix 2</span>
+          <h2>Bug 2 — IQR bounds on clipped data</h2>
+          <div class="deck-code-panel">
+            <pre class="deck-pre r-stretch"><code class="language-python" data-trim data-line-numbers="1-2">
+price_lo, price_hi = iqr_bounds(df['cenaLokaluBrutto'].dropna())
+area_lo,  area_hi  = iqr_bounds(df['powUzytkowaLokalu'].dropna())
+              </code></pre>
+          </div>
+          <ul class="deck-list-plain deck-list-compact" style="margin-top: 0.45em">
+            <li class="fragment">Clipping is for <em>visualisation only</em> — never feed clipped data into statistical
+              computations</li>
+            <li class="fragment">Compressed IQR → tighter bounds → legitimate values flagged as outliers</li>
+            <li class="fragment"><code>.dropna()</code> on the raw column gives the correct Q1/Q3</li>
+          </ul>
+          <p class="deck-footer">Data Cleaning &amp; Preparation</p>
+          <aside class="notes">
+            <p>General rule: visualisation transforms (clipping, log scale) should never feed back into statistical
+              computations. Always compute on the original data.</p>
+          </aside>
+        </section>
+
+        <!-- ─── Imputation Task 1 / Bug 3 — slide 1: global median ─── -->
+        <section data-auto-animate data-auto-animate-id="bug3" data-background-color="#2a0d06">
+          <span class="deck-label">Data Imputation · Task 1</span>
+          <span class="deck-label" style="margin-left: 1em; color: var(--deck-accent)">🐛 Bug 3</span>
+          <h2>Bug 3 — global vs grouped median</h2>
+          <div class="deck-code-panel">
+            <pre class="deck-pre r-stretch"><code class="language-python" data-trim data-line-numbers="3">
+df_bug3 = df.copy()
+for col in IMPUTE_COLS:
+    df_bug3[col] = df_bug3[col].fillna(df_bug3[col].median())  # global median
+              </code></pre>
+          </div>
+          <p class="deck-caption" style="color: var(--deck-accent); margin-top: 0.3em">
+            Line 3: the global median mixes residential apartments, commercial units, garages — very different price
+            distributions.
+          </p>
+          <p class="deck-footer">Data Cleaning &amp; Preparation</p>
+          <aside class="notes">
+            <p>Ask: what is the global median price? Is that a fair estimate for a garage? For a luxury apartment? The
+              answer is clearly no — we should use the median of the same premise type.</p>
+          </aside>
+        </section>
+
+        <!-- ─── Bug 3 fix: grouped transform ─── -->
+        <section data-auto-animate data-auto-animate-id="bug3" data-background-color="#2a0d06">
+          <span class="deck-label">Data Imputation · Task 1</span>
+          <span class="deck-label" style="margin-left: 1em; color: var(--deck-accent)">✓ Fix 3</span>
+          <h2>Bug 3 — global vs grouped median</h2>
+          <div class="deck-code-panel">
+            <pre class="deck-pre r-stretch"><code class="language-python" data-trim data-line-numbers="3-4">
+df_median = df.copy()
+for col in IMPUTE_COLS:
+    group_median = df_median.groupby('funkcjaLokalu')[col].transform('median')
+    df_median[col] = df_median[col].fillna(group_median)
+              </code></pre>
+          </div>
+          <ul class="deck-list-plain deck-list-compact" style="margin-top: 0.45em">
+            <li class="fragment">Global median ignores premise type — mixes incomparable distributions</li>
+            <li class="fragment"><code>.groupby().transform('median')</code> returns a Series aligned to the original
+              index — drop-in for <code>.fillna()</code></li>
+            <li class="fragment">Each missing value is filled with the median of its own premise category</li>
+          </ul>
+          <p class="deck-footer">Data Cleaning &amp; Preparation</p>
+          <aside class="notes">
+            <p>transform is the key method here — it broadcasts the group result back to the full index, so the shapes
+              align for fillna. groupby().median() would return a smaller Series indexed by group, not suitable for
+              fillna directly.</p>
+          </aside>
+        </section>
+
+        <!-- ─── Imputation Task 2: PMM — part 1 ─── -->
+        <section data-auto-animate data-auto-animate-id="pmm">
+          <span class="deck-label">Data Imputation · Task 2</span>
+          <h2>Predictive Mean Matching (PMM)</h2>
+          <div class="deck-code-panel">
+            <pre class="deck-pre r-stretch"><code class="language-python" data-trim data-line-numbers="1-3|5-6|8-10">
+def pmm_impute(df, target_col, predictors, k=5, random_state=42):
+    rng   = np.random.default_rng(random_state)
+    preds = [p for p in predictors if p != target_col and p in df.columns]
+
+    mask_obs  = df[target_col].notna() & df[preds].notna().all(axis=1)
+    mask_miss = df[target_col].isna()  & df[preds].notna().all(axis=1)
+
+    X_obs  = df.loc[mask_obs,  preds].values.astype(float)
+    y_obs  = df.loc[mask_obs,  target_col].values.astype(float)
+    X_miss = df.loc[mask_miss, preds].values.astype(float)
+            </code></pre>
+          </div>
+          <ul class="deck-list-plain deck-list-compact" style="margin-top: 0.45em">
+            <li class="fragment">Both masks require all predictors to be non-null — prevents silent NaN propagation</li>
+            <li class="fragment">Separate arrays for observed rows (<code>X_obs</code>, <code>y_obs</code>) and missing
+              rows (<code>X_miss</code>)</li>
+          </ul>
+          <p class="deck-footer">Data Cleaning &amp; Preparation</p>
+          <aside class="notes">
+            <p>The mask logic is the most important part — both masks filter on predictor availability, not just target.
+              This is exactly what Bug 4 tests.</p>
+          </aside>
+        </section>
+
+        <!-- ─── Imputation Task 2: PMM — part 2 ─── -->
+        <section data-auto-animate data-auto-animate-id="pmm">
+          <span class="deck-label">Data Imputation · Task 2</span>
+          <h2>Predictive Mean Matching (PMM)</h2>
+          <div class="deck-code-panel">
+            <pre class="deck-pre r-stretch"><code class="language-python" data-trim data-line-numbers="1-2|4-6|8-9|10">
+    X_obs_a  = np.column_stack([np.ones(len(X_obs)),  X_obs])
+    X_miss_a = np.column_stack([np.ones(len(X_miss)), X_miss])
+
+    beta       = np.linalg.lstsq(X_obs_a, y_obs, rcond=None)[0]
+    y_hat_obs  = X_obs_a  @ beta
+    y_hat_miss = X_miss_a @ beta
+
+    donors  = [y_obs[np.argsort(np.abs(y_hat_obs - p))[:k]] for p in y_hat_miss]
+    imputed = np.array([rng.choice(d) for d in donors])
+    df.loc[mask_miss, target_col] = imputed
+            </code></pre>
+          </div>
+          <ul class="deck-list-plain deck-list-compact" style="margin-top: 0.45em">
+            <li class="fragment">Prepend a ones column → design matrix; <code>lstsq</code> fits OLS in one call</li>
+            <li class="fragment">For each missing row: find the <em>k</em> observed rows with the closest
+              <em>predicted</em> value</li>
+            <li class="fragment">Randomly pick one of their <em>actual</em> values — only real observed values are ever
+              imputed</li>
+          </ul>
+          <p class="deck-footer">Data Cleaning &amp; Preparation</p>
+          <aside class="notes">
+            <p>PMM never extrapolates beyond observed values. The donor pool approach ensures imputed values always come
+              from the real data distribution — unlike plain regression which can produce impossible values.</p>
+          </aside>
+        </section>
+
+        <!-- ─── Bug 4: PMM missing predictor check — slide 1 ─── -->
+        <section data-auto-animate data-auto-animate-id="bug4" data-background-color="#2a0d06">
+          <span class="deck-label">Data Imputation · Task 2</span>
+          <span class="deck-label" style="margin-left: 1em; color: var(--deck-accent)">🐛 Bug 4</span>
+          <h2>Bug 4 — PMM ignores missing predictors</h2>
+          <div class="deck-code-panel">
+            <pre class="deck-pre r-stretch"><code class="language-python" data-trim data-line-numbers="2">
+mask_obs  = df[target_col].notna() & df[preds].notna().all(axis=1)
+mask_miss = df[target_col].isna()   # BUG: doesn't check predictors
+              </code></pre>
+          </div>
+          <p class="deck-caption" style="color: var(--deck-accent); margin-top: 0.3em">
+            Line 2: if a predictor is also NaN, the matrix multiply produces NaN predictions that are silently written
+            back.
+          </p>
+          <p class="deck-footer">Data Cleaning &amp; Preparation</p>
+          <aside class="notes">
+            <p>The nasty part of this bug: .isnull().sum() will show those cells as filled (they are no longer NA), but
+              the value is NaN. Silent corruption.</p>
+          </aside>
+        </section>
+
+        <!-- ─── Bug 4 fix ─── -->
+        <section data-auto-animate data-auto-animate-id="bug4" data-background-color="#2a0d06">
+          <span class="deck-label">Data Imputation · Task 2</span>
+          <span class="deck-label" style="margin-left: 1em; color: var(--deck-accent)">✓ Fix 4</span>
+          <h2>Bug 4 — PMM ignores missing predictors</h2>
+          <div class="deck-code-panel">
+            <pre class="deck-pre r-stretch"><code class="language-python" data-trim data-line-numbers="2">
+mask_obs  = df[target_col].notna() & df[preds].notna().all(axis=1)
+mask_miss = df[target_col].isna()  & df[preds].notna().all(axis=1)  # FIXED
+              </code></pre>
+          </div>
+          <ul class="deck-list-plain deck-list-compact" style="margin-top: 0.45em">
+            <li class="fragment">If a predictor is NaN, the matrix product produces NaN predictions</li>
+            <li class="fragment">NaN is silently written back — <code>.isnull().sum()</code> still reports the column as
+              fully imputed</li>
+            <li class="fragment">Fix: require both the target <em>and all predictors</em> to be non-null before
+              attempting imputation</li>
+          </ul>
+          <p class="deck-footer">Data Cleaning &amp; Preparation</p>
+          <aside class="notes">
+            <p>Rows where the predictor is also missing are simply skipped — they remain NaN. A second-pass imputation
+              with a different strategy can handle those rows if needed.</p>
+          </aside>
+        </section>
+
+        <!-- ─── Imputation Task 3: stochastic regression ─── -->
+        <section>
+          <span class="deck-label">Data Imputation · Task 3</span>
+          <h2>Stochastic Regression Imputation</h2>
+          <div class="deck-code-panel">
+            <pre class="deck-pre r-stretch"><code class="language-python" data-trim data-line-numbers="1|2-3|5">
+beta      = np.linalg.lstsq(X_obs_a, y_obs, rcond=None)[0]
+residuals = y_obs - X_obs_a @ beta
+sigma     = np.std(residuals)                        # residual σ
+
+y_pred = X_miss_a @ beta + rng.normal(0, sigma, size=len(X_miss))
+              </code></pre>
+          </div>
+          <ul class="deck-list-plain deck-list-compact" style="margin-top: 0.45em">
+            <li class="fragment">Plain regression imputes the <em>conditional mean</em> — variance is compressed toward
+              the fitted line</li>
+            <li class="fragment">Adding N(0, σ_residual) noise restores the spread of the original distribution</li>
+            <li class="fragment">σ must come from <em>residuals</em> — the unexplained part after fitting — not the full
+              column</li>
+          </ul>
+          <p class="deck-footer">Data Cleaning &amp; Preparation</p>
+          <aside class="notes">
+            <p>Without the noise term, all imputed values lie exactly on the regression line. The resulting histogram
+              has a spike at the regression predictions. Adding residual noise recreates the original scatter.</p>
+          </aside>
+        </section>
+
+        <!-- ─── Bug 5: wrong sigma — slide 1 ─── -->
+        <section data-auto-animate data-auto-animate-id="bug5" data-background-color="#2a0d06">
+          <span class="deck-label">Data Imputation · Task 3</span>
+          <span class="deck-label" style="margin-left: 1em; color: var(--deck-accent)">🐛 Bug 5</span>
+          <h2>Bug 5 — sigma from full column</h2>
+          <div class="deck-code-panel">
+            <pre class="deck-pre r-stretch"><code class="language-python" data-trim data-line-numbers="2">
+residuals = y_obs - X_obs_a @ beta
+sigma     = np.std(df[target_col].dropna())   # BUG: full-column std
+y_pred    = X_miss_a @ beta + rng.normal(0, sigma, size=len(X_miss))
+              </code></pre>
+          </div>
+          <p class="deck-caption" style="color: var(--deck-accent); margin-top: 0.3em">
+            Line 2: the full-column std includes explained variation — far larger than the residual std — producing
+            implausibly wide imputed distributions.
+          </p>
+          <p class="deck-footer">Data Cleaning &amp; Preparation</p>
+          <aside class="notes">
+            <p>The full-column std of cenaLokaluBrutto is on the order of hundreds of thousands of PLN. The residual std
+              is much smaller. Using the full-column std adds noise that completely swamps the regression signal.</p>
+          </aside>
+        </section>
+
+        <!-- ─── Bug 5 fix ─── -->
+        <section data-auto-animate data-auto-animate-id="bug5" data-background-color="#2a0d06">
+          <span class="deck-label">Data Imputation · Task 3</span>
+          <span class="deck-label" style="margin-left: 1em; color: var(--deck-accent)">✓ Fix 5</span>
+          <h2>Bug 5 — sigma from full column</h2>
+          <div class="deck-code-panel">
+            <pre class="deck-pre r-stretch"><code class="language-python" data-trim data-line-numbers="2">
+residuals = y_obs - X_obs_a @ beta
+sigma     = np.std(residuals)                 # FIXED: residual std
+y_pred    = X_miss_a @ beta + rng.normal(0, sigma, size=len(X_miss))
+              </code></pre>
+          </div>
+          <ul class="deck-list-plain deck-list-compact" style="margin-top: 0.45em">
+            <li class="fragment">Full-column std includes the variance <em>explained</em> by the model — much larger
+            </li>
+            <li class="fragment">Residual std is only the <em>unexplained</em> part — the correct noise scale</li>
+            <li class="fragment">Oversized sigma produces imputed values far outside the plausible range</li>
+          </ul>
+          <p class="deck-footer">Data Cleaning &amp; Preparation</p>
+          <aside class="notes">
+            <p>Analogy: the full column std is the total spread of apartment prices. The residual std is how far prices
+              scatter around the regression prediction. The second is always smaller, and is the right amount of noise
+              to add back.</p>
+          </aside>
+        </section>
+
+        <!-- ─── Imputation Task 4: compare methods ─── -->
+        <section>
+          <span class="deck-label">Data Imputation · Task 4</span>
+          <h2>Comparing three imputation strategies</h2>
+          <div class="deck-cols" style="margin-top: 0.6em; gap: 0.8em">
+            <div class="deck-col fragment">
+              <div class="deck-block deck-block--accent">
+                <strong>Group median</strong>
+                <ul class="deck-list-plain deck-list-compact" style="margin-top: 0.4em; font-size: 0.88em">
+                  <li>Simple &amp; fast</li>
+                  <li>Respects category structure</li>
+                  <li>No variance preservation — creates artificial spikes at the median</li>
+                </ul>
+              </div>
+            </div>
+            <div class="deck-col fragment">
+              <div class="deck-block deck-block--accent">
+                <strong>PMM</strong>
+                <ul class="deck-list-plain deck-list-compact" style="margin-top: 0.4em; font-size: 0.88em">
+                  <li>Only real observed values are imputed</li>
+                  <li>Preserves distribution shape</li>
+                  <li>Requires enough observed neighbours (k donors)</li>
+                </ul>
+              </div>
+            </div>
+            <div class="deck-col fragment">
+              <div class="deck-block deck-block--accent">
+                <strong>Regresja stochastyczna</strong>
+                <ul class="deck-list-plain deck-list-compact" style="margin-top: 0.4em; font-size: 0.88em">
+                  <li>Restores variance via residual noise</li>
+                  <li>Parametric — assumes linear relationship</li>
+                  <li>Sensitive to predictor availability</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+          <p class="deck-footer">Data Cleaning &amp; Preparation</p>
+          <aside class="notes">
+            <p>No single method wins in all situations. Median is a safe baseline; PMM is preferred when preserving real
+              values matters; stochastic regression when variance preservation and continuous imputed values are needed.
+              Compare outputs using the boxplot in the notebook.</p>
+          </aside>
+        </section>
+
+        <!-- ─── Imputation Task 5: export ─── -->
+        <section>
+          <span class="deck-label">Data Imputation · Task 5</span>
+          <h2>Final inspection &amp; export</h2>
+          <div class="deck-code-panel">
+            <pre class="deck-pre r-stretch"><code class="language-python" data-trim data-line-numbers="1-4|6-9">
+msno.bar(df_clean, figsize=(12, 4), color='seagreen')
+plt.title('Null counts after cleaning')
+plt.tight_layout()
+plt.show()
+
+df_median.to_csv('../data/lokale_median.csv', index=False)
+df_pmm.to_csv('../data/lokale_pmm.csv', index=False)
+df_stochastic.to_csv('../data/lokale_stochastic.csv', index=False)
+df_clean.to_csv('../data/lokale_clean.csv', index=False)
+              </code></pre>
+          </div>
+          <ul class="deck-list-plain deck-list-compact" style="margin-top: 0.45em">
+            <li class="fragment">Re-run <code>msno.bar</code> as a final sanity check — no unexpected nulls remaining
+            </li>
+            <li class="fragment">Save one CSV per method for downstream comparison</li>
+            <li class="fragment"><code>index=False</code> prevents an unnamed index column appearing in the output file
+            </li>
+          </ul>
+          <p class="deck-footer">Data Cleaning &amp; Preparation</p>
+          <aside class="notes">
+            <p>The four CSV files let students compare methods in the next session. lokale_clean.csv uses the median
+              strategy as the default clean dataset for further analysis.</p>
+          </aside>
+        </section>
+
+      </section>
+      <!-- ═══ End Chapter 11 ═══ -->
+
     </div>
-    <script type="module" src="/src/main.js"></script>
-  </body>
+  </div>
+  <script type="module" src="/src/main.js"></script>
+</body>
+
 </html>

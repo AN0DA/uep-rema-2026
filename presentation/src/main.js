@@ -25,4 +25,5 @@ const deck = new Reveal({
   plugins: [Markdown, Highlight, Notes, Zoom],
 });
 
+window.Reveal = deck;
 deck.initialize();
